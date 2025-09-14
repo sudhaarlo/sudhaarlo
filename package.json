@@ -1,0 +1,14 @@
+{
+  "name": "sudhaarlo",
+  "version": "1.0.0",
+  "description": "An expert for every fix!",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
