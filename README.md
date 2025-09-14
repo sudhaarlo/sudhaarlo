@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-# Sudhaar Lo!
-
-An expert for every fix!
-
-This is the monorepo for the Sudhaar Lo! project, a web-based platform to connect customers with verified home repair professionals in India.
-=======
 # Sudhaar Lo!  
 **An Expert for Every Fix**
 
@@ -161,4 +154,3 @@ Each user role receives timely SMS/email notifications regarding bookings, OTPs,
 
 > Empowering reliable home repairs—digitally, transparently, affordably.  
 > **Sudhaar Lo!** – An expert for every fix.
->>>>>>> ff1d6f5ea6b8cfb6eb28ceb9fae9768627d4c0e7
