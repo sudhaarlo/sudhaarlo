@@ -3,6 +3,7 @@ import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import LoginPage from './modules/auth/LoginPage';
 import RegistrationPage from './modules/auth/RegistrationPage';
+import HomePage from './modules/home/HomePage';
 
 function App() {
   return (
@@ -11,9 +12,13 @@ function App() {
         <Header />
         <main className="flex-grow">
           <Routes>
-            <Route path="/" element={<LoginPage />} />
+            {/* The root path "/" now renders the HomePage */}
+            <Route path="/" element={<HomePage />} />
+            {/* The "/login" path is now explicitly for the LoginPage */}
+            <Route path="/login" element={<LoginPage />} />
+            {/* The "/register" path is for the RegistrationPage */}
             <Route path="/register" element={<RegistrationPage />} />
-            {/* More routes will go here as you build pages */}
+            {/* More routes can be added here */}
           </Routes>
         </main>
         <Footer />
