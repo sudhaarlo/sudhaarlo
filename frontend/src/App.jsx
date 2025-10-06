@@ -7,9 +7,13 @@ import RegistrationPage from './modules/auth/RegistrationPage';
 import HomePage from './modules/home/HomePage';
 import AboutUsPage from './modules/home/AboutUsPage'; // Home/Utility Pages
 import TermsPage from './modules/home/TermsPage';     // Home/Utility Pages
-import FAQPage from './modules/home/FaqPage';         // NOTE: Corrected filename to FaqPage.jsx
+import FaqPage from './modules/home/FaqPage';         // use actual filename
 import ExpertDashboard from './modules/expert/ExpertDashboard'; // Expert Pages (Placeholder)
 import WorkHistory from './modules/expert/WorkHistory';         // Expert Pages (Placeholder)
+
+// ADDED: customer pages
+import CustomerDashboard from './modules/customer/CustomerDashboard';
+import BookingHistory from './modules/customer/BookingHistory';
 
 
 function App() {
@@ -28,12 +32,18 @@ function App() {
             {/* Utility Pages (Your recent work) */}
             <Route path="/about" element={<AboutUsPage />} />
             <Route path="/terms" element={<TermsPage />} />
-            <Route path="/faq" element={<FAQPage />} />
+            <Route path="/faq" element={<FaqPage />} />
             
             {/* Expert Dashboard Routes (Future/Placeholder) */}
             <Route path="/expert/dashboard" element={<ExpertDashboard />} />
             <Route path="/expert/history" element={<WorkHistory />} />
-            
+
+            {/* Customer pages */}
+            <Route path="/customer" element={<CustomerDashboard />} />
+            <Route path="/customer/dashboard" element={<CustomerDashboard />} />
+            <Route path="/customer/history" element={<BookingHistory />} />
+            <Route path="/customer/book" element={<CustomerDashboard />} /> {/* replace with actual booking component when available */}
+
             {/* NOTE: You will need to create the files for the Expert components
                (ExpertDashboard.jsx and WorkHistory.jsx) and ensure the casing on 
                your FAQ page component file name is consistent (FaqPage.jsx vs FAQPage.jsx). */}
