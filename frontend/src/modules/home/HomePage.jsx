@@ -93,12 +93,6 @@ const Header = () => {
           >
             Login / Sign Up
           </button>
-          <button
-            onClick={() => navigate('/register/expert')} // Assuming a new route for expert registration
-            className="px-6 py-3 bg-white border-2 border-[#fe913b] text-[#fe913b] font-bold rounded-xl shadow-lg hover:bg-orange-50 transition-colors duration-300 transform hover:-translate-y-1"
-          >
-            SudhaarLo For Experts
-          </button>
         </div>
 
         {/* Mobile Menu Button */}
@@ -122,12 +116,6 @@ const Header = () => {
             className="text-gray-700 hover:text-[#225599] transition-colors font-semibold text-lg py-3 px-6 rounded-xl hover:bg-blue-50"
           >
             Login / Sign Up
-          </button>
-          <button
-            onClick={() => { setIsModalOpen(false); navigate('/register/expert'); }}
-            className="text-gray-700 hover:text-[#225599] transition-colors font-semibold text-lg py-3 px-6 rounded-xl hover:bg-blue-50"
-          >
-            SudhaarLo For Experts
           </button>
         </div>
       </Modal>
@@ -173,7 +161,7 @@ const HomePage = () => {
               </button>
               <button
                 className="px-8 py-4 bg-white/80 backdrop-blur-sm text-[#225599] border-2 border-[#225599] font-bold rounded-2xl shadow-2xl hover:shadow-[#225599]/25 hover:bg-blue-50 transform hover:-translate-y-2 transition-all duration-300 text-lg"
-                onClick={() => navigate('/register/expert')}
+                onClick={() => navigate('/expert/dashboard')}
               >
                 Join as Expert
                 <span className="ml-2">⚡</span>

@@ -4,6 +4,8 @@ import Footer from './components/common/Footer';
 import LoginPage from './modules/auth/LoginPage';
 import RegistrationPage from './modules/auth/RegistrationPage';
 import HomePage from './modules/home/HomePage';
+import ExpertDashboard from './modules/expert/ExpertDashboard';
+import WorkHistory from './modules/expert/WorkHistory';
 
 function App() {
   return (
@@ -18,7 +20,9 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             {/* The "/register" path is for the RegistrationPage */}
             <Route path="/register" element={<RegistrationPage />} />
-            {/* More routes can be added here */}
+            {/* Expert pages */}
+            <Route path="/expert/dashboard" element={<ExpertDashboard />} />
+            <Route path="/expert/history" element={<WorkHistory />} />
           </Routes>
         </main>
         <Footer />
