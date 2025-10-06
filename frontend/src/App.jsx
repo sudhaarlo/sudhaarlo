@@ -5,14 +5,12 @@ import Footer from './components/common/Footer';
 import LoginPage from './modules/auth/LoginPage';
 import RegistrationPage from './modules/auth/RegistrationPage';
 import HomePage from './modules/home/HomePage';
-<<<<<<< HEAD
-import ExpertDashboard from './modules/expert/ExpertDashboard';
-import WorkHistory from './modules/expert/WorkHistory';
-=======
-import AboutUsPage from './modules/home/AboutUsPage';
-import TermsPage from './modules/home/TermsPage'; 
-import FAQPage from './modules/home/FAQPage';
->>>>>>> 7104c55a140adc9dffb1167e331ab384219d9f5a
+import AboutUsPage from './modules/home/AboutUsPage'; // Home/Utility Pages
+import TermsPage from './modules/home/TermsPage';     // Home/Utility Pages
+import FAQPage from './modules/home/FaqPage';         // NOTE: Corrected filename to FaqPage.jsx
+import ExpertDashboard from './modules/expert/ExpertDashboard'; // Expert Pages (Placeholder)
+import WorkHistory from './modules/expert/WorkHistory';         // Expert Pages (Placeholder)
+
 
 function App() {
   return (
@@ -21,18 +19,24 @@ function App() {
         <Header />
         <main className="flex-grow">
           <Routes>
+            {/* Core Application Routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegistrationPage />} />
-<<<<<<< HEAD
-            {/* Expert pages */}
-            <Route path="/expert/dashboard" element={<ExpertDashboard />} />
-            <Route path="/expert/history" element={<WorkHistory />} />
-=======
+            <Route path="/register/expert" element={<RegistrationPage />} />
+            
+            {/* Utility Pages (Your recent work) */}
             <Route path="/about" element={<AboutUsPage />} />
             <Route path="/terms" element={<TermsPage />} />
-            <Route path="/FAQ" element={<FAQPage />} />
->>>>>>> 7104c55a140adc9dffb1167e331ab384219d9f5a
+            <Route path="/faq" element={<FAQPage />} />
+            
+            {/* Expert Dashboard Routes (Future/Placeholder) */}
+            <Route path="/expert/dashboard" element={<ExpertDashboard />} />
+            <Route path="/expert/history" element={<WorkHistory />} />
+            
+            {/* NOTE: You will need to create the files for the Expert components
+               (ExpertDashboard.jsx and WorkHistory.jsx) and ensure the casing on 
+               your FAQ page component file name is consistent (FaqPage.jsx vs FAQPage.jsx). */}
           </Routes>
         </main>
         <Footer />

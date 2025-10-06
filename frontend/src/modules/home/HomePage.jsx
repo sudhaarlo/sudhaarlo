@@ -175,7 +175,6 @@ const HomePage = () => {
           </button>
         </section>
       </main>
-      <Footer />
     </div>
   );
 };
