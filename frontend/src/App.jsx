@@ -7,7 +7,7 @@ import RegistrationPage from './modules/auth/RegistrationPage';
 import HomePage from './modules/home/HomePage';
 import AboutUsPage from './modules/home/AboutUsPage'; // Home/Utility Pages
 import TermsPage from './modules/home/TermsPage';     // Home/Utility Pages
-import FaqPage from './modules/home/FaqPage';         // use actual filename
+import FaqPage from './modules/home/FAQPage';         // use actual filename
 import ExpertDashboard from './modules/expert/ExpertDashboard'; // Expert Pages (Placeholder)
 import WorkHistory from './modules/expert/WorkHistory';         // Expert Pages (Placeholder)
 
