@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -62,17 +63,88 @@ export default function RegistrationPage({ openModal }) {
           <button
             type="submit"
             className="w-full py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold rounded-xl shadow-lg hover:shadow-orange-500/25 transform hover:-translate-y-1 transition-all duration-300"
+=======
+import React, { useState } from "react";
+import { registerUser } from "../../services/api";
+
+const RegistrationPage = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    try {
+      const { data } = await registerUser({ name, email, password });
+      localStorage.setItem("token", data.token);
+      alert("Registration successful!");
+      // TODO: Redirect to profile or home
+    } catch (err) {
+      setError(err.response?.data?.message || "Registration failed");
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
+          Register
+        </h2>
+
+        <form onSubmit={handleRegister} className="space-y-4">
+          {error && <p className="text-red-500">{error}</p>}
+          <input
+            type="text"
+            placeholder="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full border px-3 py-2 rounded"
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full border px-3 py-2 rounded"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full border px-3 py-2 rounded"
+          />
+          <button
+            type="submit"
+            className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
+>>>>>>> efc1642 (WIP: save local changes)
           >
             Register
           </button>
         </form>
+<<<<<<< HEAD
         <p className="mt-8 text-center text-gray-600">
           Already have an account?{' '}
           <Link to="/login" className="font-bold text-orange-600 hover:underline">
             Login Here
           </Link>
+=======
+
+        <p className="mt-4 text-center text-sm text-gray-600">
+          Already have an account?{" "}
+          <a href="/" className="text-blue-600 hover:underline">
+            Login here
+          </a>
+>>>>>>> efc1642 (WIP: save local changes)
         </p>
       </div>
     </div>
   );
+<<<<<<< HEAD
 }
+=======
+};
+
+export default RegistrationPage;
+>>>>>>> efc1642 (WIP: save local changes)

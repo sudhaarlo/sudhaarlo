@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -58,8 +59,70 @@ export default function LoginPage({ onLogin, openModal }) {
           <Link to="/register" className="font-bold text-orange-600 hover:underline">
             Register Here
           </Link>
+=======
+import React, { useState } from "react";
+import { loginUser } from "../../services/api";
+
+const LoginPage = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const { data } = await loginUser({ email, password });
+      localStorage.setItem("token", data.token);
+      alert("Login successful!");
+      // TODO: Redirect to profile or home
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed");
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      <div className="bg-white p-8 rounded shadow-md w-full max-w-sm">
+        <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">Login</h2>
+
+        <form onSubmit={handleLogin} className="space-y-4">
+          {error && <p className="text-red-500">{error}</p>}
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full border px-3 py-2 rounded"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full border px-3 py-2 rounded"
+          />
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          >
+            Login
+          </button>
+        </form>
+
+        <p className="mt-4 text-center text-sm text-gray-600">
+          Don't have an account?{" "}
+          <a href="/register" className="text-blue-600 hover:underline">
+            Register here
+          </a>
+>>>>>>> efc1642 (WIP: save local changes)
         </p>
       </div>
     </div>
   );
+<<<<<<< HEAD
 }
+=======
+};
+
+export default LoginPage;
+>>>>>>> efc1642 (WIP: save local changes)
