@@ -1,8 +1,24 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getExperts } from '../../services/api';
 
 export default function ExpertDashboard() {
   const navigate = useNavigate();
+  const [experts, setExperts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    getExperts()
+      .then((d) => {
+        if (mounted) setExperts(d.experts || d);
+      })
+      .catch((e) => mounted && setError(e.message || 'Failed to load'))
+      .finally(() => mounted && setLoading(false));
+    return () => (mounted = false);
+  }, []);
 
   const expertProfile = useMemo(() => ({
     expertName: 'Rahul Sharma',
@@ -138,6 +154,33 @@ export default function ExpertDashboard() {
                 Completing jobs on time and asking customers for ratings improves your visibility.
               </p>
             </div>
+          </div>
+        </section>
+
+        <section className="mt-10">
+          <h2 className="text-2xl font-bold mb-4">Expert Directory</h2>
+
+          {loading && <div className="text-gray-500">Loading experts...</div>}
+          {error && <div className="text-red-500">{error}</div>}
+
+          <div className="grid gap-4">
+            {experts.map((exp) => (
+              <div key={exp._id || exp.id} className="p-4 border rounded-lg flex justify-between items-center">
+                <div>
+                  <div className="font-bold text-lg">{exp.name || exp.expertName}</div>
+                  <div className="text-sm text-gray-500">{(exp.serviceCategories || exp.profile?.categories || []).join(', ')}</div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => navigate(`/expert/${exp._id || exp.id}/history`)}
+                    className="px-3 py-2 bg-indigo-600 text-white rounded-lg"
+                  >
+                    View History
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
       </div>
