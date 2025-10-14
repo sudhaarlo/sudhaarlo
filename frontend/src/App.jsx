@@ -56,3 +56,9 @@ function App() {
 }
 
 export default App;
+
+export const getExpertHistory = (expertId) => API.get(`/experts/${expertId}/history`);
+
+router.get('/:id/history', (req, res) => {
+  res.json({ ok: true, expertId: req.params.id, jobs: [] });
+});
