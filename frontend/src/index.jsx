@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { RefreshCw, CheckCircle, XCircle, Trash2, Shield, Loader, Clock, FileText } from 'lucide-react';
 
-// --- MOCK DATA/CONSTANTS (REPLACE WITH REAL BACKEND CALLS) ---
-// Note: This JWT is a placeholder. In a real app, this would come from a successful admin login.
-// Assuming a token structure for testing the fetch flow.
+
 const MOCK_ADMIN_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2Zjk4MGMxZDdkZTYxYmZmOGE2OTI0ZiIsInVzZXJUeXBlIjoiYWRtaW4iLCJpYXQiOjE2NTQ5OTIwMDAsImV4cCI6MTY4NjUzNjAwMH0.S-453uD1E2eB2h5j-5eXg8s7jN4k3u9l7t2t8w7";
 const API_BASE_URL = 'http://localhost:5173/api/admin'; 
 const DUMMY_S3_URL = "https://placehold.co/800x600/60a5fa/ffffff?text=Document+for+Verification";
