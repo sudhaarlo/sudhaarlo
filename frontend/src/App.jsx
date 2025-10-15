@@ -17,48 +17,40 @@ import BookingHistory from './modules/customer/BookingHistory';
 
 
 function App() {
-  return (
-    <Router>
-      <div className="flex flex-col min-h-screen">
-        <Header />
-        <main className="flex-grow">
-          <Routes>
-            {/* Core Application Routes */}
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegistrationPage />} />
-            <Route path="/register/expert" element={<RegistrationPage />} />
-            
-            {/* Utility Pages (Your recent work) */}
-            <Route path="/about" element={<AboutUsPage />} />
-            <Route path="/terms" element={<TermsPage />} />
-            <Route path="/faq" element={<FaqPage />} />
-            
-            {/* Expert Dashboard Routes (Future/Placeholder) */}
-            <Route path="/expert/dashboard" element={<ExpertDashboard />} />
-            <Route path="/expert/:id/history" element={<WorkHistory />} />
+  return (
+    <Router>
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow">
+          <Routes>
+            {/* Core Application Routes */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegistrationPage />} />
+            <Route path="/register/expert" element={<RegistrationPage />} />
+            
+            {/* Utility Pages */}
+            <Route path="/about" element={<AboutUsPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/faq" element={<FaqPage />} />
+            
+            {/* Expert Dashboard Routes */}
+            <Route path="/expert/dashboard" element={<ExpertDashboard />} />
+            <Route path="/expert/:id/history" element={<WorkHistory />} />
 
-            {/* Customer pages */}
-            <Route path="/customer" element={<CustomerDashboard />} />
-            <Route path="/customer/dashboard" element={<CustomerDashboard />} />
-            <Route path="/customer/history" element={<BookingHistory />} />
-            <Route path="/customer/book" element={<CustomerDashboard />} /> {/* replace with actual booking component when available */}
+            {/* Customer pages */}
+            <Route path="/customer" element={<CustomerDashboard />} />
+            <Route path="/customer/dashboard" element={<CustomerDashboard />} />
+            <Route path="/customer/history" element={<BookingHistory />} />
+            <Route path="/customer/book" element={<CustomerDashboard />} /> 
 
-            {/* NOTE: You will need to create the files for the Expert components
-               (ExpertDashboard.jsx and WorkHistory.jsx) and ensure the casing on 
-               your FAQ page component file name is consistent (FaqPage.jsx vs FAQPage.jsx). */}
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </Router>
-  );
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </Router>
+  );
 }
 
 export default App;
-
-export const getExpertHistory = (expertId) => API.get(`/experts/${expertId}/history`);
-
-router.get('/:id/history', (req, res) => {
-  res.json({ ok: true, expertId: req.params.id, jobs: [] });
-});
+// API and router code outside of App function is irrelevant to the white screen issue.
