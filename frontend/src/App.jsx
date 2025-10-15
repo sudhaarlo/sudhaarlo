@@ -13,7 +13,7 @@ import RegistrationPage from './modules/auth/RegistrationPage';
 import HomePage from './modules/home/HomePage';
 import AboutUsPage from './modules/home/AboutUsPage';
 import TermsPage from './modules/home/TermsPage';
-import FaqPage from './modules/home/FAQPage'; // Corrected casing from friend's version
+import FaqPage from './modules/home/FAQPage'; // Using your corrected casing
 import OffersPage from './modules/home/OffersPage';
 import ServicesPage from './modules/expert/ServicesPage'; // Assuming this is a public page to view services
 
@@ -55,7 +55,7 @@ function App() {
                             <Route path="/customer/history" element={<BookingHistory />} />
                             <Route path="/customer/profile" element={<CustomerProfile />} />
                             {/* The booking page might need its own component later */}
-                            <Route path="/customer/book" element={<CustomerDashboard />} /> 
+                            <Route path="/customer/book" element={<ServicesPage />} /> 
                         </Route>
 
                         {/* --- Protected Expert Routes --- */}
@@ -73,3 +73,5 @@ function App() {
         </Router>
     );
 }
+
+export default App;

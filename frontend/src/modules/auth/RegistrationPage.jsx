@@ -40,7 +40,6 @@ const CustomerFields = ({ customerDetails, setCustomerDetails }) => (
     <div className="space-y-4 pt-4 border-t border-gray-200">
         <h3 className="text-xl font-bold text-[#225599]">Customer Profile</h3>
         
-        {/* Address Fields */}
         <div>
             <label className="block text-gray-700 font-semibold mb-2">Street/Area Address</label>
             <input
@@ -65,7 +64,6 @@ const CustomerFields = ({ customerDetails, setCustomerDetails }) => (
             />
         </div>
 
-        {/* State Field (DROPDOWN) */}
         <div>
             <label className="block text-gray-700 font-semibold mb-2">State</label>
             <select
@@ -81,19 +79,17 @@ const CustomerFields = ({ customerDetails, setCustomerDetails }) => (
             </select>
         </div>
 
-        {/* Country Field (DEFAULTED) */}
         <div>
             <label className="block text-gray-700 font-semibold mb-2">Country</label>
             <input
                 type="text"
-                value="India" // Defaulted to India
+                value="India"
                 readOnly
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-600 focus:outline-none transition-all duration-300"
             />
              <input type="hidden" name="country" value="India" />
         </div>
 
-        {/* Pincode Field */}
         <div>
             <label className="block text-gray-700 font-semibold mb-2">Pincode</label>
             <input
@@ -108,7 +104,6 @@ const CustomerFields = ({ customerDetails, setCustomerDetails }) => (
             />
         </div>
         
-        {/* Date of Birth */}
         <div>
             <label className="block text-gray-700 font-semibold mb-2">Date of Birth</label>
             <input
@@ -124,7 +119,6 @@ const CustomerFields = ({ customerDetails, setCustomerDetails }) => (
 
 // --- Expert-Specific Fields Component ---
 const ExpertFields = ({ expertDetails, setExpertDetails }) => {
-    // Local state for the new pincode/city input and custom service
     const [newServicePincode, setNewServicePincode] = useState('');
     const [newServiceCity, setNewServiceCity] = useState('');
     const [customService, setCustomService] = useState(expertDetails.customService || '');
@@ -135,7 +129,6 @@ const ExpertFields = ({ expertDetails, setExpertDetails }) => {
         }
     }, [expertDetails.serviceAreas, setExpertDetails]);
     
-
     const addServiceArea = () => {
         if (!newServicePincode || !newServiceCity) {
             alert("Please fill in both City and Pincode.");
@@ -168,7 +161,6 @@ const ExpertFields = ({ expertDetails, setExpertDetails }) => {
         }));
     };
     
-    // Handler for service selection, updates customService field if 'Other' is selected
     const handleServiceChange = (e) => {
         const selectedTrade = e.target.value;
         setExpertDetails(prev => ({ ...prev, trade: selectedTrade }));
@@ -181,18 +173,15 @@ const ExpertFields = ({ expertDetails, setExpertDetails }) => {
         }
     };
 
-    // Handler for custom service input
     const handleCustomServiceChange = (e) => {
         setCustomService(e.target.value);
         setExpertDetails(prev => ({ ...prev, customService: e.target.value }));
     };
 
-
     return (
         <div className="space-y-4 pt-4 border-t border-gray-200">
             <h3 className="text-xl font-bold text-[#225599]">Expert Details</h3>
             
-            {/* Service Trade (EXPANDED DROPDOWN) */}
             <div>
                 <label className="block text-gray-700 font-semibold mb-2">Service Trade</label>
                 <select
@@ -208,7 +197,6 @@ const ExpertFields = ({ expertDetails, setExpertDetails }) => {
                 </select>
             </div>
 
-            {/* Conditional Custom Service Input */}
             {expertDetails.trade === 'Other' && (
                 <div>
                     <label className="block text-gray-700 font-semibold mb-2">Specify Your Service</label>
@@ -223,7 +211,6 @@ const ExpertFields = ({ expertDetails, setExpertDetails }) => {
                 </div>
             )}
 
-            {/* Years of Experience */}
             <div>
                 <label className="block text-gray-700 font-semibold mb-2">Years of Experience</label>
                 <input
@@ -236,7 +223,6 @@ const ExpertFields = ({ expertDetails, setExpertDetails }) => {
                 />
             </div>
             
-            {/* --- Multiple Service Areas (DYNAMIC INPUT) --- */}
             <div className='border border-orange-300 p-4 rounded-xl'>
                 <label className="block text-gray-700 font-semibold mb-2">Service City & Pincode</label>
                 <div className="flex space-x-2 mb-3">
@@ -268,7 +254,6 @@ const ExpertFields = ({ expertDetails, setExpertDetails }) => {
                     </button>
                 </div>
                 
-                {/* List of Added Service Areas */}
                 {expertDetails.serviceAreas?.length > 0 && (
                     <div className="space-y-2 max-h-40 overflow-y-auto">
                         <p className="text-sm font-medium text-gray-700 mt-2">Added Areas:</p>
@@ -293,9 +278,7 @@ const ExpertFields = ({ expertDetails, setExpertDetails }) => {
                     <p className="text-sm text-gray-500 italic mt-2">Experts must add at least one service area.</p>
                 )}
             </div>
-            {/* --- End Multiple Service Areas --- */}
 
-            {/* State Field (DROPDOWN) */}
             <div>
                 <label className="block text-gray-700 font-semibold mb-2">State of Operation</label>
                 <select
@@ -311,7 +294,6 @@ const ExpertFields = ({ expertDetails, setExpertDetails }) => {
                 </select>
             </div>
             
-            {/* Country Field (DEFAULTED) */}
             <div>
                 <label className="block text-gray-700 font-semibold mb-2">Country of Operation</label>
                 <input
@@ -323,7 +305,6 @@ const ExpertFields = ({ expertDetails, setExpertDetails }) => {
                 <input type="hidden" name="country" value="India" />
             </div>
 
-            {/* ID Proof */}
             <div>
                 <label className="block text-gray-700 font-semibold mb-2">ID Proof (Aadhaar/PAN Number)</label>
                 <input
@@ -336,7 +317,6 @@ const ExpertFields = ({ expertDetails, setExpertDetails }) => {
                 />
             </div>
 
-            {/* Referred By Code (Optional) */}
             <div>
                 <label className="block text-gray-700 font-semibold mb-2">Referred By Code (Optional)</label>
                 <input
@@ -360,7 +340,6 @@ const AdminFields = ({ adminDetails, setAdminDetails }) => (
     <div className="space-y-4 pt-4 border-t border-gray-200">
         <h3 className="text-xl font-bold text-[#225599]">Admin Code</h3>
                 
-            {/* Access Key */}
         <div>
             <label className="block text-gray-700 font-semibold mb-2">Access Key</label>
             <input
@@ -382,7 +361,6 @@ export default function RegistrationPage() {
     const [password, setPassword] = useState('');
     const [role, setRole] = useState(ROLES.NONE);
     
-    // State for role-specific details
     const [customerDetails, setCustomerDetails] = useState({ country: 'India' });
     const [expertDetails, setExpertDetails] = useState({ serviceAreas: [], country: 'India' }); 
     const [adminDetails, setAdminDetails] = useState({});
@@ -405,13 +383,11 @@ export default function RegistrationPage() {
             return;
         }
         
-        // Final validation for the "Other" service field
         if (role === ROLES.EXPERT && expertDetails.trade === 'Other' && !expertDetails.customService) {
              setError('Please specify the custom service you offer.');
              return;
         }
         
-        // Add basic validation for Customer fields
         if (role === ROLES.CUSTOMER) {
              const requiredCustomerFields = ['streetAddress', 'city', 'state', 'pincode', 'birthday'];
              const missingField = requiredCustomerFields.find(field => !customerDetails[field]);
@@ -421,7 +397,6 @@ export default function RegistrationPage() {
              }
         }
         
-        // Add basic validation for Expert fields
         if (role === ROLES.EXPERT) {
              const requiredExpertFields = ['trade', 'experience', 'state', 'idProof'];
              const missingField = requiredExpertFields.find(field => !expertDetails[field]);
@@ -431,7 +406,6 @@ export default function RegistrationPage() {
              }
         }
         
-        // Add basic validation for Admin fields
         if (role === ROLES.ADMIN && !adminDetails.accessKey) {
              setError('Please enter the Admin Access Key.');
              return;
@@ -441,7 +415,6 @@ export default function RegistrationPage() {
         
         let registrationData = { name, phone, email, password, role };
         
-        // Merge details
         if (role === ROLES.EXPERT) {
             registrationData = { 
                 ...registrationData, 
@@ -452,7 +425,6 @@ export default function RegistrationPage() {
             if(registrationData.customService) {
                 delete registrationData.customService;
             }
-
         } else if (role === ROLES.CUSTOMER) {
             registrationData = { ...registrationData, ...customerDetails, country: 'India' };
         } else if (role === ROLES.ADMIN) {
@@ -472,7 +444,6 @@ export default function RegistrationPage() {
             } else {
                 navigate('/admin/dashboard');
             }
-
         } catch (err) {
             setError(err?.response?.data?.message || err.message || 'Registration failed');
         } finally {
@@ -490,7 +461,6 @@ export default function RegistrationPage() {
                 {error && <div className="mb-4 text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-200">{error}</div>}
                 
                 <form onSubmit={handleRegistrationSubmit} className="space-y-6">
-                    {/* --- Basic Fields (Global) --- */}
                     <div>
                         <label className="block text-gray-700 font-semibold mb-2">Full Name</label>
                         <input
@@ -536,7 +506,6 @@ export default function RegistrationPage() {
                         />
                     </div>
                     
-                    {/* --- Role Selection Dropdown --- */}
                     <div>
                         <label className="block text-gray-700 font-semibold mb-2">I am a...</label>
                         <select
@@ -557,7 +526,6 @@ export default function RegistrationPage() {
                         </select>
                     </div>
 
-                    {/* --- Conditional Role-Specific Fields --- */}
                     {role === ROLES.CUSTOMER && (
                         <CustomerFields customerDetails={customerDetails} setCustomerDetails={setCustomerDetails} />
                     )}
@@ -568,7 +536,6 @@ export default function RegistrationPage() {
                         <AdminFields adminDetails={adminDetails} setAdminDetails={setAdminDetails} />
                     )}
 
-                    {/* --- Submit Button --- */}
                     <button
                         type="submit"
                         disabled={loading || role === ROLES.NONE}

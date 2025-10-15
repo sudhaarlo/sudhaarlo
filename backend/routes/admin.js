@@ -1,9 +1,24 @@
 import express from 'express';
-import adminMiddleware from '../middleware/adminMiddleware.js';
-import authMiddleware from '../middleware/authMiddleware.js';
-import { listUsers, verifyExpert } from '../controllers/adminController.js';
+// Ensure both named exports are imported to match the authMiddleware.js file
+import { protect, restrictTo } from '../middleware/authMiddleware.js'; 
 
 const router = express.Router();
-router.get('/users', authMiddleware, adminMiddleware, listUsers);
-router.post('/experts/:id/verify', authMiddleware, adminMiddleware, verifyExpert);
+
+// --- Mock Controller Functions (Replace with actual imports later) ---
+// These are simple placeholders. You must import your real adminController here.
+const getAllUsers = (req, res) => res.json({ message: "Admin: List of all users" });
+const getAllExperts = (req, res) => res.json({ message: "Admin: List of all experts" });
+// --------------------------------------------------------------------
+
+// All routes here should be restricted to 'admin' role, 
+// and must run 'protect' first to attach req.user.
+
+// @route   GET /api/admin/users
+// @access  Private (Admin only)
+router.get('/users', protect, restrictTo('admin'), getAllUsers);
+
+// @route   GET /api/admin/experts
+// @access  Private (Admin only)
+router.get('/experts', protect, restrictTo('admin'), getAllExperts);
+
 export default router;

@@ -1,6 +1,7 @@
 // src/modules/expert/ServicesPage.jsx
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
 import Footer from '../../components/common/Footer';
 
@@ -10,23 +11,35 @@ const VALID_SERVICES = [
     "Electrical Wiring & Repair", "Fan Installation", "Inverter/UPS Repair",
     "AC Service & Repair (Split/Window)", "Refrigerator Repair", "Washing Machine Repair",
     "Geyser Installation & Repair", "Microwave Oven Repair",
-    "Custom Furniture Making", "Door & Window Repair", "Modular Kitchen Installation",
-    "Interior Painting", "Exterior Painting", "Waterproofing Services",
-    "Tile & Marble Fitting", "Masonry Work", "Home Cleaning (Deep Clean)",
+    "Custom Furniture Making", "Interior Painting", "Exterior Painting",
     "Pest Control (General)", "Termite Control", "Security Camera Installation",
     "Laptop & Desktop Repair", "Vehicle Washing (At Home)", "Gardening & Landscaping", 
 ];
 
 const SERVICE_AREAS = [
-    { city: "Pune", state: "Maharashtra", pincodes: "411001, 411002, 411003, 411004" },
-    { city: "Mumbai", state: "Maharashtra", pincodes: "400001, 400002, 400003, 400004" },
-    { city: "Bengaluru", state: "Karnataka", pincodes: "560001, 560002, 560003, 560004" },
-    { city: "Delhi", state: "Delhi", pincodes: "110001, 110002, 110003, 110004" },
+    { city: "Pune", state: "Maharashtra", key_services: ["Plumbing Repair", "Electrical Wiring", "AC Service", "Home Cleaning"] },
+    { city: "Mumbai", state: "Maharashtra", key_services: ["Washing Machine Repair", "Pest Control", "Interior Painting", "Carpentry"] },
+    { city: "Bengaluru", state: "Karnataka", key_services: ["Laptop & Desktop Repair", "Security Camera Installation", "Plumbing Repair", "AC Service"] },
+    { city: "Delhi", state: "Delhi", key_services: ["Geyser Installation", "Electrical Wiring", "Home Cleaning", "Painting"] },
 ];
 
+const TOP_SERVICES = VALID_SERVICES.slice(0, 10); // Displaying only the top 10
+
 const ServicesPage = () => {
-    const [selectedService, setSelectedService] = useState('');
+    const [selectedCity, setSelectedCity] = useState(SERVICE_AREAS[0].city);
     const [suggestedService, setSuggestedService] = useState('');
+    const navigate = useNavigate();
+
+    // Find the currently selected area data
+    const currentArea = SERVICE_AREAS.find(area => area.city === selectedCity);
+
+    const handleServiceClick = (serviceName, city) => {
+        // Formats the service name for a clean URL (e.g., "Plumbing Repair" -> "plumbing-repair")
+        const serviceSlug = serviceName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        
+        // Simulates navigation to a page listing experts for this service/city pair
+        navigate(`/experts/${city.toLowerCase()}/${serviceSlug}`);
+    };
 
     const handleServiceSuggestion = (e) => {
         e.preventDefault();
@@ -43,68 +56,76 @@ const ServicesPage = () => {
             <Header />
             <main className="flex-grow pt-24 pb-12">
                 <div className="container mx-auto px-6">
-                    <h1 className="text-4xl md:text-5xl font-black text-[#225599] mb-8 text-center">
-                        Our Services & Coverage
+                    <h1 className="text-4xl md:text-5xl font-black text-[#225599] mb-4 text-center">
+                        Find Your Local Expert
                     </h1>
+                    <p className="text-lg text-gray-600 mb-10 text-center">
+                        Use the **Search Bar in the Header** to find verified experts in your specific area by pincode.
+                    </p>
 
-                    {/* --- Service List Section --- */}
+                    {/* --- Top 10 Services Section --- */}
                     <section className="bg-white rounded-xl shadow-lg p-8 mb-8">
-                        <h2 className="text-3xl font-bold text-[#fe913b] mb-6">Available Expert Services</h2>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
-                            {VALID_SERVICES.map((service, index) => (
-                                <div key={index} className="p-3 bg-blue-50 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-100 transition-colors">
+                        <h2 className="text-3xl font-bold text-[#fe913b] mb-6">Top 10 Requested Services</h2>
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
+                            {TOP_SERVICES.map((service, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => handleServiceClick(service, 'Pune')} // Defaults to Pune for demonstration
+                                    className="p-3 bg-blue-50 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-100 hover:text-[#225599] transition-colors shadow-sm"
+                                >
                                     {service}
-                                </div>
+                                </button>
                             ))}
                         </div>
                     </section>
                     
-                    {/* --- Service Area Coverage Section --- */}
-                    <section className="bg-white rounded-xl shadow-lg p-8 mb-8">
-                        <h2 className="text-3xl font-bold text-[#fe913b] mb-6">Areas We Service</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {SERVICE_AREAS.map((area, index) => (
-                                <div key={index} className="p-4 border-2 border-gray-200 rounded-lg">
-                                    <h3 className="text-xl font-bold text-[#225599]">{area.city}, {area.state}</h3>
-                                    <p className="text-sm text-gray-600 mt-2">
-                                        **Key Pincodes:** {area.pincodes.split(', ').slice(0, 3).join(', ')}{area.pincodes.split(', ').length > 3 ? '...' : ''}
-                                    </p>
-                                    <button 
-                                        onClick={() => alert(`Full pincode list for ${area.city}: ${area.pincodes}`)}
-                                        className="text-sm text-[#fe913b] hover:underline mt-1 focus:outline-none"
-                                    >
-                                        View all Pincodes
-                                    </button>
-                                </div>
-                            ))}
+                    {/* --- Browse By City/Area Panel --- */}
+                    <section className="bg-white rounded-xl shadow-lg p-8 mb-8 border-t-4 border-[#225599]">
+                        <h2 className="text-3xl font-bold text-[#225599] mb-6">Browse Services By City</h2>
+                        
+                        {/* City Selection Dropdown */}
+                        <div className="mb-6 max-w-sm">
+                            <label htmlFor="city-select" className="block text-gray-700 font-semibold mb-2">Select Your City</label>
+                            <select
+                                id="city-select"
+                                value={selectedCity}
+                                onChange={(e) => setSelectedCity(e.target.value)}
+                                className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-orange-500/50"
+                            >
+                                {SERVICE_AREAS.map((area) => (
+                                    <option key={area.city} value={area.city}>
+                                        {area.city}, {area.state}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
+
+                        {/* Services List for Selected City */}
+                        {currentArea && (
+                            <div>
+                                <h3 className="text-xl font-bold text-[#fe913b] mb-4">Popular in {currentArea.city}:</h3>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    {currentArea.key_services.map((service, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => handleServiceClick(service, currentArea.city)}
+                                            className="p-3 border border-orange-200 rounded-lg text-gray-700 font-medium hover:bg-orange-100 transition-colors shadow-sm"
+                                        >
+                                            {service}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </section>
 
                     {/* --- Suggest/Request New Service Section --- */}
-                    <section className="bg-white rounded-xl shadow-lg p-8">
-                        <h2 className="text-3xl font-bold text-[#225599] mb-6">Suggest a New Service</h2>
+                    <section id="suggest" className="bg-white rounded-xl shadow-lg p-8">
+                        <h2 className="text-3xl font-bold text-[#225599] mb-6">Can't Find a Service?</h2>
                         <p className="text-md text-gray-600 mb-4">
-                            Don't see a service you need? Suggest it, and we'll work on adding verified experts!
+                            Suggest a new service below, and we'll work on adding verified experts in your area!
                         </p>
                         <form onSubmit={handleServiceSuggestion} className="max-w-md mx-auto space-y-4">
-                            <div>
-                                <label htmlFor="select-service" className="block text-gray-700 font-semibold mb-2">Service Type (Optional)</label>
-                                <select
-                                    id="select-service"
-                                    value={selectedService}
-                                    onChange={(e) => setSelectedService(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-orange-500/50"
-                                >
-                                    <option value="">-- Choose a Category (e.g., Plumbing) --</option>
-                                    <option value="Plumbing">Plumbing/Water</option>
-                                    <option value="Electrical">Electrical/AC</option>
-                                    <option value="Carpentry">Carpentry/Woodwork</option>
-                                    <option value="Cleaning">Cleaning/Pest Control</option>
-                                    <option value="Appliance">Appliance Repair</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-
                             <div>
                                 <label htmlFor="suggest-service" className="block text-gray-700 font-semibold mb-2">New Service Name</label>
                                 <input
@@ -112,7 +133,7 @@ const ServicesPage = () => {
                                     type="text"
                                     value={suggestedService}
                                     onChange={(e) => setSuggestedService(e.target.value)}
-                                    placeholder="e.g., Robot Vacuum Repair"
+                                    placeholder="e.g., Appliance Gas Refill"
                                     className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-orange-500/50"
                                     required
                                 />
@@ -128,6 +149,7 @@ const ServicesPage = () => {
                     </section>
                 </div>
             </main>
+            <Footer />
         </div>
     );
 };

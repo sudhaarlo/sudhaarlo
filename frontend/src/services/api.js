@@ -2,7 +2,9 @@
 
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+// MERGED: Use the superior environment variable approach from your friend,
+// but keep the consistent 'API_URL' variable name.
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const api = axios.create({
     baseURL: API_URL,
@@ -42,12 +44,10 @@ export const getCustomerBookings = async () => {
     return response.data;
 };
 
-// THIS IS THE NEW FUNCTION THAT WAS MISSING
 export const getExpertBookings = async () => {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('No token found');
 
-    // We will create this backend endpoint next
     const response = await api.get('/bookings/expert', {
         headers: { Authorization: `Bearer ${token}` },
     });

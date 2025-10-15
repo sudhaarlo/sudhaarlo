@@ -1,5 +1,7 @@
+// src/controllers/authController.js
+
 import jwt from 'jsonwebtoken';
-import User from '../src/models/User.js'; // Ensure this path is correct
+import User from '../models/User.js'; // Corrected path
 
 /**
  * @desc    Generates a JSON Web Token for a given user.
@@ -19,61 +21,74 @@ const signToken = (user) => {
  */
 export async function register(req, res) {
     try {
-        // THIS IS THE KEY FIX: Capture all profile data using the '...' rest operator.
+        // YOUR VERSION'S SUPERIOR DATA HANDLING: Captures all profile fields.
         const { name, email, password, role, ...profileData } = req.body;
 
-        // Core validation.
         if (!name || !email || !password || !role) {
             return res.status(400).json({ message: 'Please provide name, email, password, and role.' });
         }
 
-        // Check if user exists.
-        const userExists = await User.findOne({ email });
-        if (userExists) {
-            return res.status(400).json({ message: 'A user with this email already exists.' });
-        }
+        // MERGED FEATURE: Check for duplicates by email OR phone (from friend's code).
+        const phone = profileData.phone;
+        const searchCriteria = [];
+        if (email) searchCriteria.push({ email });
+        if (phone) searchCriteria.push({ 'profile.phone': phone });
 
-        // Create the new user. The User.js model will handle hashing the password.
+        if (searchCriteria.length > 0) {
+            const userExists = await User.findOne({ $or: searchCriteria });
+            if (userExists) {
+                return res.status(400).json({ message: 'A user with this email or phone number already exists.' });
+            }
+        }
+        
+        // YOUR VERSION'S CORRECT USER CREATION: Uses the profile object.
+        // The User.js model will automatically hash the password.
         const newUser = await User.create({
             name,
             email,
-            password, // The model's pre-save hook will hash this.
+            password,
             role,
-            profile: profileData, // All other form fields are saved here.
+            profile: profileData,
         });
 
-        // Respond with token and user info if creation is successful.
-        if (newUser) {
-            const token = signToken(newUser);
-            res.status(201).json({
-                token,
-                user: {
-                    id: newUser._id,
-                    name: newUser.name,
-                    email: newUser.email,
-                    role: newUser.role,
-                },
-            });
-        } else {
-            res.status(400).json({ message: 'Invalid user data received.' });
-        }
+        const token = signToken(newUser);
+        res.status(201).json({
+            token,
+            user: {
+                id: newUser._id,
+                name: newUser.name,
+                email: newUser.email,
+                role: newUser.role,
+            },
+        });
     } catch (err) {
-        console.error(err); // This will log the detailed error to your backend terminal.
+        console.error("Registration Error:", err);
         res.status(500).json({ message: 'Server error during registration.' });
     }
 }
 
 /**
- * @desc    Authenticate an existing user and get a token.
+ * @desc    Authenticate an existing user (with email OR phone) and get a token.
  * @route   POST /api/auth/login
  * @access  Public
  */
 export async function login(req, res) {
     try {
-        const { email, password } = req.body;
-        const user = await User.findOne({ email });
+        // MERGED FEATURE: Handle login with either email or phone (from friend's code).
+        const { email, phone, password } = req.body;
 
-        // Use the matchPassword method from the User model.
+        let searchQuery;
+        if (email) {
+            searchQuery = { email };
+        } else if (phone) {
+            searchQuery = { 'profile.phone': phone };
+        } else {
+            return res.status(400).json({ message: 'Please provide an email or phone number.' });
+        }
+
+        const user = await User.findOne(searchQuery);
+
+        // YOUR VERSION'S SUPERIOR PASSWORD CHECK: Uses the model method.
         if (user && (await user.matchPassword(password))) {
             const token = signToken(user);
             res.json({
@@ -86,10 +101,10 @@ export async function login(req, res) {
                 },
             });
         } else {
-            res.status(401).json({ message: 'Invalid email or password.' });
+            res.status(401).json({ message: 'Invalid credentials.' });
         }
     } catch (err) {
-        console.error(err);
+        console.error("Login Error:", err);
         res.status(500).json({ message: 'Server error during login.' });
     }
 }
@@ -100,15 +115,11 @@ export async function login(req, res) {
  * @access  Private
  */
 export async function me(req, res) {
-    try {
-        // Assumes middleware has attached user.id to the request.
-        const user = await User.findById(req.user.id).select('-password');
-        if (!user) {
-            return res.status(404).json({ message: 'User not found.' });
-        }
-        res.json(user);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server error fetching user profile.' });
+    // SIMPLIFIED AND CORRECTED 'me' function
+    // The 'protect' middleware already found the user and attached it to req.user.
+    if (req.user) {
+        res.json(req.user);
+    } else {
+        res.status(404).json({ message: 'User not found.' });
     }
 }

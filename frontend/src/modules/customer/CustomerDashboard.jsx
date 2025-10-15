@@ -44,7 +44,7 @@ export default function CustomerDashboard() {
     }, []); // Empty dependency array means this runs only once on mount.
 
     // --- DATA DERIVATION & MEMOIZATION ---
-    // Calculate quick stats dynamically based on live booking data
+    // Calculate quick stats based on live booking data
     const quickStats = useMemo(() => {
         const upcomingCount = bookings.filter(b => b.status === 'Confirmed' || b.status === 'Pending').length;
         const completedCount = bookings.filter(b => b.status === 'Completed').length;
@@ -77,7 +77,7 @@ export default function CustomerDashboard() {
         }, 1500);
     };
 
-    // --- RENDER LOGIC (Handles loading and error states) ---
+    // --- RENDER LOGIC ---
     if (loading) {
         return <LoadingSpinner />;
     }
@@ -92,7 +92,7 @@ export default function CustomerDashboard() {
 
             <div className="container mx-auto px-4 sm:px-6 lg:px-10 space-y-12">
                 
-                {/* --- Welcome Header (Now Dynamic) --- */}
+                {/* --- Welcome Header (Dynamic) --- */}
                 <header>
                     <h1
                         className="text-4xl font-bold cursor-pointer hover:text-blue-600 text-gray-900 transition-colors duration-300"
@@ -105,7 +105,7 @@ export default function CustomerDashboard() {
                     </p>
                 </header>
 
-                {/* --- Quick Stats (Now Dynamic) --- */}
+                {/* --- Quick Stats (Dynamic) --- */}
                 <section>
                     <h2 className="text-2xl font-bold mb-6 text-gray-900">Your Current Booking Status</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
