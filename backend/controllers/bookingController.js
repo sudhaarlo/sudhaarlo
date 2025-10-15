@@ -28,3 +28,4 @@ export async function getExpertBookings(req, res) {
   const bookings = await Booking.find({ expert: req.user.id }).populate('customer', 'name email');
   res.json(bookings);
 }
+

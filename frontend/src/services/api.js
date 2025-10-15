@@ -1,33 +1,66 @@
+// src/services/api.js
+
 import axios from 'axios';
 
-// Base URL for backend API. Use Vite env var when available.
-export const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const API_URL = 'http://localhost:5000/api';
 
-const API = axios.create({
-  baseURL: API_BASE,
-  headers: { 'Content-Type': 'application/json' },
+const api = axios.create({
+    baseURL: API_URL,
 });
 
-// Attach token from localStorage automatically
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  config.headers = config.headers || {};
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+// --- AUTH FUNCTIONS ---
+export const registerUser = (userData) => {
+    return api.post('/auth/register', userData);
+};
 
-// --- Auth ---
-export const registerUser = (data) => API.post('/auth/register', data);
-export const loginUser = (data) => API.post('/auth/login', data);
-export const getMe = () => API.get('/auth/me');
+export const loginUser = async (credentials) => {
+    const response = await api.post('/auth/login', credentials);
+    if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+    }
+    return response.data;
+};
 
-// --- Experts ---
-export const getExperts = () => API.get('/experts');
-export const getExpertHistory = (expertId) => API.get(`/experts/${expertId}/history`);
+export const getUserProfile = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('No token found');
 
-// --- Bookings ---
-export const createBooking = (data) => API.post('/bookings', data);
-export const getCustomerBookings = () => API.get('/bookings/customer');
+    const response = await api.get('/auth/me', {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+};
 
-// Default export the axios instance for advanced use
-export default API;
+// --- BOOKING FUNCTIONS ---
+export const getCustomerBookings = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('No token found');
+
+    const response = await api.get('/bookings/customer', {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+};
+
+// THIS IS THE NEW FUNCTION THAT WAS MISSING
+export const getExpertBookings = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('No token found');
+
+    // We will create this backend endpoint next
+    const response = await api.get('/bookings/expert', {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+};
+
+// --- USER/EXPERT FUNCTIONS ---
+export const getExperts = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('No token found');
+
+    const response = await api.get('/users/experts', {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+};
