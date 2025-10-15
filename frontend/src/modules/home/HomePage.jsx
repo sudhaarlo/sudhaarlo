@@ -1,83 +1,119 @@
-// src/modules/home/HomePage.jsx
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../../components/common/Header';
-import Footer from '../../components/common/Footer';
 
-// Data for the services section
-const services = [
-  {
-    name: 'Plumbing',
-    icon: (
-      <svg className="w-12 h-12 text-[#225599]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18a8 8 0 110-16 8 8 0 010 16zM8 12h8m-4 4v-8"/>
-      </svg>
-    ),
-  },
-  {
-    name: 'Electrical Work',
-    icon: (
-      <svg className="w-12 h-12 text-[#225599]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-      </svg>
-    ),
-  },
-  {
-    name: 'Carpentry',
-    icon: (
-      <svg className="w-12 h-12 text-[#225599]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 3v18h12V3H6zM6 9h12M6 15h12"/>
-      </svg>
-    ),
-  },
-  {
-    name: 'Renovation', // New Service
-    icon: (
-      <svg className="w-12 h-12 text-[#225599]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11h.01M12 16h.01M16 11h.01M16 16h.01M12 2a10 10 0 100 20 10 10 0 000-20z"/>
-      </svg>
-    ),
-  },
-  {
-    name: 'Housekeeping', // New Service
-    icon: (
-      <svg className="w-12 h-12 text-[#225599]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2a10 10 0 100 20 10 10 0 000-20zM12 8a4 4 0 100 8 4 4 0 000-8z"/>
-      </svg>
-    ),
-  },
-];
+// Placeholder for fetching service data (this would hit your backend API)
+const fetchServices = async () => {
+  // --- START: Simulation of API call and hardcoded data structure ---
+  await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+  return [
+    {
+      name: 'Plumbing',
+      icon: (
+        <svg className="w-12 h-12 text-[#225599]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18a8 8 0 110-16 8 8 0 010 16zM8 12h8m-4 4v-8"/>
+        </svg>
+      ),
+    },
+    {
+      name: 'Electrical Work',
+      icon: (
+        <svg className="w-12 h-12 text-[#225599]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      ),
+    },
+    {
+      name: 'Carpentry',
+      icon: (
+        <svg className="w-12 h-12 text-[#225599]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 3v18h12V3H6zM6 9h12M6 15h12"/>
+        </svg>
+      ),
+    },
+    {
+      name: 'Renovation',
+      icon: (
+        <svg className="w-12 h-12 text-[#225599]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11h.01M12 16h.01M16 11h.01M16 16h.01M12 2a10 10 0 100 20 10 10 0 000-20z"/>
+        </svg>
+      ),
+    },
+    {
+      name: 'Housekeeping',
+      icon: (
+        <svg className="w-12 h-12 text-[#225599]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2a10 10 0 100 20 10 10 0 000-20zM12 8a4 4 0 100 8 4 4 0 000-8z"/>
+        </svg>
+      ),
+    },
+  ];
+  // --- END: Simulation of API call and hardcoded data structure ---
+};
 
-// Data for testimonials
-const testimonials = [
-  {
-    quote: "Finding a reliable electrician was always a headache. Sudhaar Lo! made it incredibly easy. The expert was on time, professional, and the price was fair. Highly recommend!",
-    name: "Aarti Sharma",
-    location: "Pune",
-  },
-  {
-    quote: "I needed a plumber urgently, and Sudhaar Lo! connected me with a verified professional within minutes. The service was excellent, and I love that there are no hidden fees.",
-    name: "Rohit Singh",
-    location: "Mumbai",
-  },
-  {
-    quote: "As a carpenter, this platform has changed my business. I get consistent, verified leads and can showcase my work to new customers. It’s a win-win for everyone.",
-    name: "Prakash Varma",
-    location: "Bengaluru",
-  },
-];
+// Placeholder for fetching testimonial data (this would hit your backend API)
+const fetchTestimonials = async () => {
+  // --- START: Simulation of API call and hardcoded data ---
+  await new Promise(resolve => setTimeout(resolve, 300)); // Simulate network delay
+  return [
+    {
+      quote: "Finding a reliable electrician was always a headache. Sudhaar Lo! made it incredibly easy. The expert was on time, professional, and the price was fair. Highly recommend!",
+      name: "Aarti Sharma",
+      location: "Pune",
+    },
+    {
+      quote: "I needed a plumber urgently, and Sudhaar Lo! connected me with a verified professional within minutes. The service was excellent, and I love that there are no hidden fees.",
+      name: "Rohit Singh",
+      location: "Mumbai",
+    },
+    {
+      quote: "As a carpenter, this platform has changed my business. I get consistent, verified leads and can showcase my work to new customers. It’s a win-win for everyone.",
+      name: "Prakash Varma",
+      location: "Bengaluru",
+    },
+  ];
+  // --- END: Simulation of API call and hardcoded data ---
+};
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const [services, setServices] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const servicesData = await fetchServices();
+        const testimonialsData = await fetchTestimonials();
+        setServices(servicesData);
+        setTestimonials(testimonialsData);
+      } catch (error) {
+        console.error("Error fetching homepage data:", error);
+        // Handle error state if necessary
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-4 border-[#225599]"></div>
+        <p className="text-[#225599] ml-4 text-xl">Loading Experts...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-50 font-sans min-h-screen flex flex-col">
-      <Header />
       <main className="flex-grow pt-24 pb-12">
-        {/* Hero Section */}
+        {/* Hero Section (No change needed) */}
         <section className="bg-gradient-to-br from-blue-50 via-white to-orange-50 py-16">
-          <div className="container mx-auto px-6 text-center relative">
+          {/* ... (Hero Section JSX is unchanged) ... */}
+           <div className="container mx-auto px-6 text-center relative">
             {/* Background decoration */}
             <div className="absolute inset-0 -z-10">
               <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
@@ -105,29 +141,30 @@ const HomePage = () => {
             </div>
           </div>
         </section>
-
-        {/* Why Choose Us Section */}
+        
+        {/* Why Choose Us Section (No change needed) */}
         <section className="bg-white py-16">
-          <div className="container mx-auto px-6 text-center">
+            <div className="container mx-auto px-6 text-center">
             <h2 className="text-3xl font-bold text-[#225599] mb-8">Why Sudhaar Lo!</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="p-6">
+                <div className="p-6">
                 <h3 className="font-bold text-xl mb-2 text-[#fe913b]">Verified Experts</h3>
                 <p className="text-gray-600">All professionals undergo a strict ID and background verification process for your safety.</p>
-              </div>
-              <div className="p-6">
+                </div>
+                <div className="p-6">
                 <h3 className="font-bold text-xl mb-2 text-[#fe913b]">Transparent Pricing</h3>
                 <p className="text-gray-600">Discuss and agree on the price directly with the expert. No hidden fees or commissions.</p>
-              </div>
-              <div className="p-6">
+                </div>
+                <div className="p-6">
                 <h3 className="font-bold text-xl mb-2 text-[#fe913b]">Secure & Simple</h3>
                 <p className="text-gray-600">Book in minutes and use our OTP verification system to ensure the right expert arrives.</p>
-              </div>
+                </div>
             </div>
-          </div>
+            </div>
         </section>
 
-        {/* Top Services Section */}
+
+        {/* Top Services Section (Now using State) */}
         <section className="py-16">
           <div className="container mx-auto px-6 text-center">
             <h2 className="text-3xl font-bold text-[#225599] mb-8">Popular Services</h2>
@@ -147,7 +184,7 @@ const HomePage = () => {
           </div>
         </section>
 
-        {/* Customer Testimonials Section */}
+        {/* Customer Testimonials Section (Now using State) */}
         <section className="py-16 bg-gray-100">
           <div className="container mx-auto px-6">
             <h2 className="text-3xl font-bold text-[#225599] mb-8 text-center">What Our Customers Say</h2>
@@ -163,7 +200,7 @@ const HomePage = () => {
           </div>
         </section>
 
-        {/* Final CTA Section */}
+        {/* Final CTA Section (No change needed) */}
         <section className="text-center py-12 bg-gradient-to-r from-[#225599] to-[#fe913b] text-white">
           <h2 className="text-3xl font-bold mb-4">Join Our Growing Community</h2>
           <p className="text-lg mb-6">Whether you're a homeowner or a skilled professional, Sudhaar Lo! is for you.</p>

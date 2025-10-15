@@ -1,31 +1,23 @@
 // src/components/common/Header.jsx
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Logo from './Logo'; // Keep Logo import
-import Modal from './Modal'; // Keep Modal import
+import Logo from './Logo'; 
+import Modal from './Modal'; 
 
 const Header = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   // Placeholder state for login status, this should be global later
   const [isLoggedIn, setIsLoggedIn] = useState(false); 
-  const [showExpertMenu, setShowExpertMenu] = useState(false);
-  const menuRef = useRef(null);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const onDocClick = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) setShowExpertMenu(false);
-    };
-    document.addEventListener('mousedown', onDocClick);
-    return () => document.removeEventListener('mousedown', onDocClick);
-  }, []);
 
   // Function to handle the click on the profile icon
   const handleProfileClick = () => {
     // Navigate based on the isLoggedIn state
     if (isLoggedIn) {
-      navigate('/dashboard'); // Direct to dashboard if logged in
+      // Assuming '/dashboard' will redirect to the correct user-specific dashboard
+      // (e.g., /customer/dashboard or /expert/dashboard)
+      navigate('/dashboard'); 
     } else {
       navigate('/login'); // Direct to login page if not logged in
     }
@@ -41,9 +33,8 @@ const Header = () => {
             <Logo />
           </a>
           <div className="hidden lg:flex items-center space-x-6 text-gray-700 font-medium">
-            <a href="#" className="hover:text-[#225599] transition-colors">Services</a>
-            <a href="#" className="hover:text-[#225599] transition-colors">Categories</a>
-            <a href="#" className="hover:text-[#225599] transition-colors">Offers</a>
+            <a href="/services" className="hover:text-[#225599] transition-colors">Services</a>
+            <a href="/offers" className="hover:text-[#225599] transition-colors">Offers</a>
           </div>
         </div>
         
@@ -80,6 +71,7 @@ const Header = () => {
 
         {/* Right Section: Icons and Login/Profile */}
         <div className="hidden md:flex items-center space-x-6">
+          
           {/* Profile Icon with conditional navigation */}
           <button 
             aria-label="Profile" 
@@ -90,65 +82,6 @@ const Header = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </button>
-
-          {/* Expert Menu Button - Icon only */}
-          <div ref={menuRef} className="relative">
-            <button
-              aria-label="Expert menu"
-              onClick={() => setShowExpertMenu((s) => !s)}
-              className="p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-
-            {showExpertMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-20 py-1">
-                <button
-                  onClick={() => {
-                    setShowExpertMenu(false);
-                    navigate('/expert/dashboard');
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                >
-                  Expert Dashboard
-                </button>
-
-                <button
-                  onClick={() => {
-                    setShowExpertMenu(false);
-                    navigate('/expert/history');
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                >
-                  Work History
-                </button>
-
-                <div className="border-t border-gray-100 my-1" />
-
-                <button
-                  onClick={() => {
-                    setShowExpertMenu(false);
-                    navigate('/customer');
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                >
-                  Customer Dashboard
-                </button>
-
-                <button
-                  onClick={() => {
-                    setShowExpertMenu(false);
-                    navigate('/customer/history');
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                >
-                  Booking History
-                </button>
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Mobile Menu Button */}

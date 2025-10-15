@@ -1,3 +1,5 @@
+// src/modules/customer/CustomerDashboard.jsx
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUserProfile, getCustomerBookings } from '../../services/api';
@@ -13,12 +15,12 @@ const LoadingSpinner = () => (
 export default function CustomerDashboard() {
     const navigate = useNavigate();
 
-    // --- STATE MANAGEMENT (From your functional code) ---
+    // --- STATE MANAGEMENT (Combined from both versions) ---
     const [user, setUser] = useState(null);
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [selectedService, setSelectedService] = useState(null); // For the booking grid UI
+    const [selectedService, setSelectedService] = useState(null); // From friend's code for the UI
 
     // --- DATA FETCHING (From your functional code) ---
     useEffect(() => {
@@ -42,7 +44,7 @@ export default function CustomerDashboard() {
     }, []); // Empty dependency array means this runs only once on mount.
 
     // --- DATA DERIVATION & MEMOIZATION ---
-    // Calculate quick stats based on live booking data
+    // Calculate quick stats dynamically based on live booking data
     const quickStats = useMemo(() => {
         const upcomingCount = bookings.filter(b => b.status === 'Confirmed' || b.status === 'Pending').length;
         const completedCount = bookings.filter(b => b.status === 'Completed').length;
@@ -75,7 +77,7 @@ export default function CustomerDashboard() {
         }, 1500);
     };
 
-    // --- RENDER LOGIC ---
+    // --- RENDER LOGIC (Handles loading and error states) ---
     if (loading) {
         return <LoadingSpinner />;
     }
@@ -90,9 +92,12 @@ export default function CustomerDashboard() {
 
             <div className="container mx-auto px-4 sm:px-6 lg:px-10 space-y-12">
                 
-                {/* --- Welcome Header (Dynamic) --- */}
+                {/* --- Welcome Header (Now Dynamic) --- */}
                 <header>
-                    <h1 className="text-4xl font-bold cursor-pointer hover:text-blue-600 text-gray-900 transition-colors duration-300">
+                    <h1
+                        className="text-4xl font-bold cursor-pointer hover:text-blue-600 text-gray-900 transition-colors duration-300"
+                        onClick={() => navigate('/customer/profile')}
+                    >
                         Welcome, {user?.name}!
                     </h1>
                     <p className="mt-2 text-gray-600 text-base">
@@ -100,7 +105,7 @@ export default function CustomerDashboard() {
                     </p>
                 </header>
 
-                {/* --- Quick Stats (Dynamic) --- */}
+                {/* --- Quick Stats (Now Dynamic) --- */}
                 <section>
                     <h2 className="text-2xl font-bold mb-6 text-gray-900">Your Current Booking Status</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">

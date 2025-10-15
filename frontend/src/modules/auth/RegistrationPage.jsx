@@ -281,7 +281,6 @@ const ExpertFields = ({ expertDetails, setExpertDetails }) => {
                                     type="button"
                                     onClick={() => removeServiceArea(area.pincode)}
                                     className="text-red-500 hover:text-red-700 transition-colors"
-                                    // FIX: Corrected template literal syntax for JSX attribute
                                     aria-label={`Remove area ${area.city}`}
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
@@ -417,7 +416,6 @@ export default function RegistrationPage() {
              const requiredCustomerFields = ['streetAddress', 'city', 'state', 'pincode', 'birthday'];
              const missingField = requiredCustomerFields.find(field => !customerDetails[field]);
              if (missingField) {
-                 // FIX: Corrected template literal syntax
                  setError(`Please fill in the required customer field: ${missingField}.`);
                  return;
              }
@@ -428,7 +426,6 @@ export default function RegistrationPage() {
              const requiredExpertFields = ['trade', 'experience', 'state', 'idProof'];
              const missingField = requiredExpertFields.find(field => !expertDetails[field]);
              if (missingField) {
-                 // FIX: Corrected template literal syntax
                  setError(`Please fill in the required expert field: ${missingField}.`);
                  return;
              }
