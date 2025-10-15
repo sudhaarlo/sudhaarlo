@@ -6,10 +6,10 @@ export default function CustomerProfile() {
  // Customer Info
  // ------------------------------
  const [customer, setCustomer] = useState({
-   name: 'Priya Singh',
-   city: 'Pune',
-   email: 'priya@example.com',
-   phone: '+91 9876543210',
+   name: 'Aashika',
+   city: 'Abad',
+   email: 'aashika@example.com',
+   phone: '12121212',
  });
 
 
@@ -21,8 +21,8 @@ export default function CustomerProfile() {
  // Addresses
  // ------------------------------
  const [addresses, setAddresses] = useState([
-   { id: 'A-101', label: 'Home', details: '123, MG Road, Pune, Maharashtra' },
-   { id: 'A-102', label: 'Office', details: 'Tower B, Hinjewadi, Pune, Maharashtra' },
+   { id: 'A-101', label: 'Home', details: 'bypaas, Maharashtra' },
+   
  ]);
  const [isEditingAddresses, setIsEditingAddresses] = useState(false);
 
