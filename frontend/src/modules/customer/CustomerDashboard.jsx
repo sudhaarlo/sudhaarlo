@@ -1,5 +1,3 @@
-// src/modules/customer/CustomerDashboard.jsx
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUserProfile, getCustomerBookings } from '../../services/api';
@@ -15,17 +13,18 @@ const LoadingSpinner = () => (
 export default function CustomerDashboard() {
     const navigate = useNavigate();
 
-    // --- STATE MANAGEMENT (Combined from both versions) ---
+    // --- STATE MANAGEMENT ---
     const [user, setUser] = useState(null);
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [selectedService, setSelectedService] = useState(null); // From friend's code for the UI
+    const [selectedService, setSelectedService] = useState(null);
 
-    // --- DATA FETCHING (From your functional code) ---
+    // --- DATA FETCHING ---
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
+                // Fetch user profile and bookings in parallel
                 const [profileData, bookingsData] = await Promise.all([
                     getUserProfile(),
                     getCustomerBookings(),
@@ -41,12 +40,19 @@ export default function CustomerDashboard() {
         };
 
         fetchDashboardData();
-    }, []); // Empty dependency array means this runs only once on mount.
+    }, []); // Empty array ensures this runs only once on mount
 
     // --- DATA DERIVATION & MEMOIZATION ---
-    // Calculate quick stats based on live booking data
+
+    // FIX: Define the 'upcomingBookings' variable by filtering the main bookings list
+    const upcomingBookings = useMemo(
+        () => bookings.filter(b => b.status === 'Confirmed' || b.status === 'Pending'),
+        [bookings]
+    );
+    
+    // Calculate quick stats dynamically from live data
     const quickStats = useMemo(() => {
-        const upcomingCount = bookings.filter(b => b.status === 'Confirmed' || b.status === 'Pending').length;
+        const upcomingCount = upcomingBookings.length; // Now we can use the variable here
         const completedCount = bookings.filter(b => b.status === 'Completed').length;
         
         return [
@@ -56,7 +62,7 @@ export default function CustomerDashboard() {
         ];
     }, [bookings]);
 
-    // Static category data for the booking grid (from your friend's code)
+    // Static data for the service category grid
     const categories = useMemo(() => [
         { name: 'AC Servicing', icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z' },
         { name: 'Plumbing', icon: 'M19 9h-4V3H9v6H5l7 7 7-7z' },
@@ -66,15 +72,14 @@ export default function CustomerDashboard() {
         { name: 'Pest Control', icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8s8 3.58 8 8-3.58 8-8 8-8-3.58-8-8z' },
     ], []);
 
-    // --- HANDLERS (From your friend's code) ---
+    // --- HANDLERS ---
     const handleSelectService = (serviceName) => {
         setSelectedService(serviceName);
-        // This would eventually navigate to a booking page
         setTimeout(() => {
             console.log(`Navigating to booking page for: ${serviceName}`);
-            // navigate(`/customer/book?service=${serviceName}`);
+            navigate('/customer/book', { state: { service: serviceName } });
             setSelectedService(null); // Reset after action
-        }, 1500);
+        }, 1000);
     };
 
     // --- RENDER LOGIC ---
@@ -119,7 +124,53 @@ export default function CustomerDashboard() {
                     </div>
                 </section>
 
-                {/* --- Book New Services (UI from friend's code) --- */}
+                {/* --- Upcoming Bookings Section (NEW) --- */}
+                <section>
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-bold text-gray-900">Upcoming Bookings</h2>
+                        <button 
+                            className="text-sm font-semibold text-blue-600 hover:underline"
+                            onClick={() => navigate('/customer/history')}
+                        >
+                            View All
+                        </button>
+                    </div>
+                    <div className="rounded-2xl bg-white shadow-lg p-6">
+                        {upcomingBookings.length > 0 ? (
+                            <ul className="divide-y divide-gray-200">
+                                {upcomingBookings.slice(0, 3).map((booking) => (
+                                    <li key={booking._id} className="py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                        <div className="mb-2 sm:mb-0">
+                                            <p className="font-semibold text-gray-900">{booking.service}</p>
+                                            <p className="text-sm text-gray-600">
+                                                with {booking.expert?.name || 'Assigned Expert'}
+                                            </p>
+                                        </div>
+                                        <div className="text-left sm:text-right">
+                                            <p className="text-sm font-medium text-gray-800">
+                                                {new Date(booking.scheduled).toLocaleString('en-IN', {
+                                                    dateStyle: 'medium',
+                                                    timeStyle: 'short',
+                                                })}
+                                            </p>
+                                            <span className={`mt-2 inline-block px-2 py-1 text-xs font-semibold rounded-full ${
+                                                booking.status === 'Confirmed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                            }`}>
+                                                {booking.status}
+                                            </span>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <div className="text-center py-8">
+                                <p className="text-gray-600">You have no upcoming bookings scheduled.</p>
+                            </div>
+                        )}
+                    </div>
+                </section>
+
+                {/* --- Book New Services --- */}
                 <section>
                     <h2 className="text-2xl font-bold mb-6 text-gray-900">Book New Services</h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
@@ -140,7 +191,7 @@ export default function CustomerDashboard() {
                     </div>
                     {selectedService && (
                         <div className="mt-6 p-4 bg-blue-600/90 rounded-xl text-white flex items-center justify-center shadow-lg">
-                            Loading nearest {selectedService} experts...
+                            Redirecting to book: {selectedService}...
                         </div>
                     )}
                 </section>
@@ -148,3 +199,6 @@ export default function CustomerDashboard() {
         </div>
     );
 }
+
+
+
