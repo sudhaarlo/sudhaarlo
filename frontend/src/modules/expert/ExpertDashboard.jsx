@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getUserProfile, getExpertBookings } from '../../services/api.js';
+// --- 1. FIXED: Removed '.js' extension ---
+import { getExpertBookings } from '../../services/api';
+// --- 2. FIXED: Removed '.jsx' extension ---
+import { useSocket } from '../../context/SocketContext';
+import { ToastContainer, toast } from 'react-toastify';
+// --- 3. FIXED: Removed '.js' extension ---
+import { useAuth } from '../../hooks/useAuth';
 
 // A simple loading component for a better user experience
 const LoadingSpinner = () => (
@@ -11,37 +17,60 @@ const LoadingSpinner = () => (
 
 export default function ExpertDashboard() {
     const navigate = useNavigate();
+    const socket = useSocket();
+    // --- 4. Get user directly from AuthContext ---
+    const { user, isLoading: isAuthLoading } = useAuth(); 
 
     // --- STATE MANAGEMENT ---
-    const [user, setUser] = useState(null); // Will hold the expert's profile
-    const [bookings, setBookings] = useState([]); // Will hold their assigned jobs
+    const [bookings, setBookings] = useState([]); 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // --- DATA FETCHING ---
+    // --- DATA FETCHING (Runs once on mount) ---
     useEffect(() => {
-        const fetchExpertData = async () => {
-            try {
-                // Fetch the expert's profile and their bookings in parallel
-                const [profileData, bookingsData] = await Promise.all([
-                    getUserProfile(),
-                    getExpertBookings(),
-                ]);
-                setUser(profileData);
-                setBookings(bookingsData);
-            } catch (err) {
-                console.error("Expert Dashboard Error:", err);
-                setError("Sorry, we couldn't load your dashboard. Please try logging in again.");
-            } finally {
-                setLoading(false);
-            }
-        };
+        // Only fetch bookings if the user is loaded
+        if (user) {
+            const fetchExpertData = async () => {
+                try {
+                    // --- 5. We only need to fetch bookings. 'user' is already available! ---
+                    const bookingsData = await getExpertBookings();
+                    setBookings(bookingsData);
+                } catch (err) {
+                    console.error("Expert Dashboard Error:", err);
+                    setError("Sorry, we couldn't load your dashboard. Please try logging in again.");
+                } finally {
+                    setLoading(false);
+                }
+            };
 
-        fetchExpertData();
-    }, []); // Empty dependency array means this runs only once on mount
+            fetchExpertData();
+        } else if (!isAuthLoading) {
+            // If auth is done loading and there's still no user
+            setError("Could not load user data. Please log in again.");
+            setLoading(false);
+        }
+    }, [user, isAuthLoading]); // Re-run when user or auth loading state changes
+
+    // --- REAL-TIME LISTENER ---
+    useEffect(() => {
+        if (socket) {
+            socket.on('newBookingRequest', (newBooking) => {
+                
+                toast.success(`New Job Request: ${newBooking.serviceCategory || 'New Service'}`, {
+                    position: "top-right",
+                    autoClose: 5000,
+                });
+
+                setBookings((prevBookings) => [newBooking, ...prevBookings]);
+            });
+
+            return () => {
+                socket.off('newBookingRequest');
+            };
+        }
+    }, [socket]); 
 
     // --- DATA DERIVATION ---
-    // For now, we'll keep the dashboard stats static as calculating them requires more data
     const dashboardStats = useMemo(() => ([
         { key: 'activeJobs', label: 'Active Jobs', value: bookings.filter(b => b.status === 'Confirmed' || b.status === 'Pending').length, accent: 'from-blue-400 to-blue-600' },
         { key: 'completedThisMonth', label: 'Completed (30d)', value: bookings.filter(b => b.status === 'Completed').length, accent: 'from-green-400 to-green-600' },
@@ -50,7 +79,7 @@ export default function ExpertDashboard() {
     ]), [bookings]);
 
     // --- RENDER LOGIC ---
-    if (loading) {
+    if (isAuthLoading || loading) { // Show spinner if auth OR data is loading
         return <LoadingSpinner />;
     }
 
@@ -60,6 +89,7 @@ export default function ExpertDashboard() {
 
     return (
         <div className="pt-24 pb-10 min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 font-poppins">
+            <ToastContainer />
             <style>{`@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');`}</style>
 
             <div className="container mx-auto px-4 sm:px-6 lg:px-10 space-y-12">
@@ -75,11 +105,10 @@ export default function ExpertDashboard() {
                             </h1>
                             <p className="mt-1 text-gray-600">{user?.profile?.trade || 'Service Professional'} • {user?.profile?.state || 'Location not set'}</p>
                             <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
-                                <span className={`px-2 py-1 rounded-md text-sm ${user?.verified ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'}`}>
-                                    {user?.verified ? 'Verified' : 'Unverified'}
+                                <span className={`px-2 py-1 rounded-md text-sm ${user?.profile?.isVerified ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'}`}>
+                                    {user?.profile?.isVerified ? 'Verified' : 'Unverified'}
                                 </span>
-                                {/* Add placeholder data for fields not yet in the schema */}
-                                <span className="text-gray-500">Rating 0.0 (0)</span>
+                                <span className="text-gray-500">Rating {user?.profile?.rating || 0.0} ({user?.profile?.reviews?.length || 0})</span>
                                 <span className="text-gray-500">Subscr. Not Active</span>
                             </div>
                         </div>
@@ -123,11 +152,11 @@ export default function ExpertDashboard() {
                             {bookings.map(job => (
                                 <li key={job._id} className="p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 hover:bg-gray-50 transition-all rounded-xl">
                                     <div>
-                                        <p className="text-gray-900 font-medium">{job.service}</p>
-                                        <p className="text-sm text-gray-600">{job.user?.name || 'Customer'} • {job.location}</p>
+                                        <p className="text-gray-900 font-medium">{job.serviceCategory}</p>
+                                        <p className="text-sm text-gray-600">{job.customer?.name || 'Customer'} • {job.customer?.profile?.city || 'Unknown Location'}</p>
                                     </div>
                                     <div className="flex flex-wrap items-center gap-3 mt-2 sm:mt-0">
-                                        <span className="text-sm text-gray-700">{new Date(job.scheduled).toLocaleString()}</span>
+                                        <span className="text-sm text-gray-700">{new Date(job.date).toLocaleDateString()} - {job.time}</span>
                                         <span className="px-2 py-1 rounded-md text-sm font-medium bg-blue-100 text-blue-700">{job.status}</span>
                                         <button className="px-3 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-50">Details</button>
                                     </div>
@@ -142,4 +171,3 @@ export default function ExpertDashboard() {
         </div>
     );
 }
-

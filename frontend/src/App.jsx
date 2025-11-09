@@ -2,33 +2,33 @@
 
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Header from './components/common/Header';
-import Footer from './components/common/Footer';
+import Header from './components/common/Header.jsx';
+import Footer from './components/common/Footer.jsx';
 
 // --- Import All Pages from Both Versions ---
 
 // Auth & Public Pages
-import LoginPage from './modules/auth/LoginPage';
-import RegistrationPage from './modules/auth/RegistrationPage';
-import HomePage from './modules/home/HomePage';
-import AboutUsPage from './modules/home/AboutUsPage';
-import TermsPage from './modules/home/TermsPage';
-import FaqPage from './modules/home/FAQPage'; // Using your corrected casing
-import OffersPage from './modules/home/OffersPage';
-import ServicesPage from './modules/expert/ServicesPage'; // Assuming this is a public page to view services
+import LoginPage from './modules/auth/LoginPage.jsx';
+import RegistrationPage from './modules/auth/RegistrationPage.jsx';
+import HomePage from './modules/home/HomePage.jsx';
+import AboutUsPage from './modules/home/AboutUsPage.jsx';
+import TermsPage from './modules/home/TermsPage.jsx';
+import FaqPage from './modules/home/FAQPage.jsx';
+import OffersPage from './modules/home/OffersPage.jsx';
+import ServicesPage from './modules/expert/ServicesPage.jsx';
 
 // Customer-Specific Pages
-import CustomerDashboard from './modules/customer/CustomerDashboard';
-import BookingHistory from './modules/customer/BookingHistory';
-import CustomerProfile from './modules/customer/CustomerProfile';
+import CustomerDashboard from './modules/customer/CustomerDashboard.jsx';
+import BookingHistory from './modules/customer/BookingHistory.jsx';
+import CustomerProfile from './modules/customer/CustomerProfile.jsx';
 
 // Expert-Specific Pages
-import ExpertDashboard from './modules/expert/ExpertDashboard';
-import WorkHistory from './modules/expert/WorkHistory';
-import ExpertProfile from './modules/expert/ExpertProfile';
+import ExpertDashboard from './modules/expert/ExpertDashboard.jsx';
+import WorkHistory from './modules/expert/WorkHistory.jsx';
+import ExpertProfile from './modules/expert/ExpertProfile.jsx';
 
 // Import our gatekeeper component
-import ProtectedRoute from './components/auth/ProtectedRoute';
+import ProtectedRoute from './components/auth/ProtectedRoute.jsx';
 
 function App() {
     return (
@@ -38,7 +38,6 @@ function App() {
                 <main className="flex-grow">
                     <Routes>
                         {/* --- Public Routes --- */}
-                        {/* Anyone can access these pages */}
                         <Route path="/" element={<HomePage />} />
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/register" element={<RegistrationPage />} />
@@ -49,23 +48,19 @@ function App() {
                         <Route path="/services" element={<ServicesPage />} />
 
                         {/* --- Protected Customer Routes --- */}
-                        {/* Only logged-in users with the 'customer' role can access these */}
                         <Route element={<ProtectedRoute role="customer" />}>
                             <Route path="/customer/dashboard" element={<CustomerDashboard />} />
                             <Route path="/customer/history" element={<BookingHistory />} />
                             <Route path="/customer/profile" element={<CustomerProfile />} />
-                            {/* The booking page might need its own component later */}
                             <Route path="/customer/book" element={<ServicesPage />} /> 
                         </Route>
 
                         {/* --- Protected Expert Routes --- */}
-                        {/* Only logged-in users with the 'expert' role can access these */}
                         <Route element={<ProtectedRoute role="expert" />}>
                             <Route path="/expert/dashboard" element={<ExpertDashboard />} />
                             <Route path="/expert/history" element={<WorkHistory />} />
                             <Route path="/expert/profile" element={<ExpertProfile />} />
                         </Route>
-
                     </Routes>
                 </main>
                 <Footer />

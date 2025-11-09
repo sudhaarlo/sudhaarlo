@@ -1,80 +1,106 @@
-import React, { useState } from 'react';
+// src/modules/admin/AdminDashboard.jsx
 
+import React, { useState, useEffect } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+// 1. Import the admin functions from our updated api.js (removed .js)
+import { getUnverifiedExperts, verifyExpert } from '../../services/api'; 
+// 2. Import the useAuth hook to get the admin's info (removed .js)
+import { useAuth } from '../../hooks/useAuth';
 
-// NOTE: In a multi-file project, you would import the Modal and
-// other shared components from a central components folder.
-// For this single-file output, we will assume they are available.
+const LoadingSpinner = () => (
+    <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-600"></div>
+    </div>
+);
 
+export default function AdminDashboard() {
+    const { user } = useAuth();
+    const [experts, setExperts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-export default function RegistrationPage({ openModal }) {
- const [name, setName] = useState('');
- const [email, setEmail] = useState('');
- const [password, setPassword] = useState('');
+    // Function to fetch the list of unverified experts
+    const fetchExperts = async () => {
+        try {
+            setLoading(true);
+            const data = await getUnverifiedExperts();
+            setExperts(data);
+        } catch (err) {
+            setError('Failed to fetch experts. Are you logged in as an Admin?');
+            toast.error('Failed to fetch experts.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    // Fetch the list when the component mounts
+    useEffect(() => {
+        fetchExperts();
+    }, []);
 
- const handleRegistrationSubmit = (e) => {
-   e.preventDefault();
-   console.log('Attempting registration for:', { name, email, password });
-   // Simulate successful registration
-   openModal('Registration successful! You can now log in.');
- };
+    // Function to handle the "Verify" button click
+    const handleVerifyClick = async (expertId) => {
+        try {
+            // Call the backend API to verify the expert
+            const res = await verifyExpert(expertId);
+            toast.success(res.message || 'Expert verified!');
+            
+            // Remove the verified expert from the list without a full reload
+            setExperts((prevExperts) => 
+                prevExperts.filter((expert) => expert._id !== expertId)
+            );
+        } catch (err) {
+            toast.error('Verification failed. Please try again.');
+        }
+    };
 
+    if (loading) {
+        return <LoadingSpinner />;
+    }
 
- return (
-   <div className="pt-24 pb-8 min-h-screen bg-gradient-to-br from-blue-50 to-gray-50 font-sans flex items-center justify-center">
-     <div className="w-full max-w-md bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20">
-       <h2 className="text-3xl font-black text-center mb-6">
-         <span className="bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">Join Our</span>
-         <span className="bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent"> Community</span>
-       </h2>
-       <form onSubmit={handleRegistrationSubmit} className="space-y-6">
-         <div>
-           <label className="block text-gray-700 font-semibold mb-2">Full Name</label>
-           <input
-             type="text"
-             value={name}
-             onChange={(e) => setName(e.target.value)}
-             placeholder="John Doe"
-             className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
-             required
-           />
-         </div>
-         <div>
-           <label className="block text-gray-700 font-semibold mb-2">Email</label>
-           <input
-             type="email"
-             value={email}
-             onChange={(e) => setEmail(e.target.value)}
-             placeholder="you@example.com"
-             className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
-             required
-           />
-         </div>
-         <div>
-           <label className="block text-gray-700 font-semibold mb-2">Password</label>
-           <input
-             type="password"
-             value={password}
-             onChange={(e) => setPassword(e.target.value)}
-             placeholder="••••••••"
-             className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
-             required
-           />
-         </div>
-         <button
-           type="submit"
-           className="w-full py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold rounded-xl shadow-lg hover:shadow-orange-500/25 transform hover:-translate-y-1 transition-all duration-300"
-         >
-           Register
-         </button>
-       </form>
-       <p className="mt-8 text-center text-gray-600">
-         Already have an account?{' '}
-         <a href="#" className="font-bold text-orange-600 hover:underline">
-           Login Here
-         </a>
-       </p>
-     </div>
-   </div>
- );
+    return (
+        <div className="pt-24 pb-10 min-h-screen bg-gray-50 font-sans">
+            <ToastContainer />
+            <div className="container mx-auto px-4 sm:px-6 lg:px-10">
+                <h1 className="text-3xl font-bold text-gray-900 mb-4">Admin Dashboard</h1>
+                <p className="text-lg text-gray-600 mb-8">Welcome, {user?.name}.</p>
+
+                <section className="bg-white rounded-xl shadow-lg border">
+                    <div className="p-6 border-b">
+                        <h2 className="text-2xl font-semibold text-gray-800">Expert Verification Queue</h2>
+                        <p className="text-gray-500">Approve or deny new experts.</p>
+                    </div>
+
+                    {error && <div className="p-6 text-red-600 bg-red-50">{error}</div>}
+                    
+                    <div className="divide-y divide-gray-200">
+                        {experts.length > 0 ? (
+                            experts.map((expert) => (
+                                <div key={expert._id} className="p-6 flex flex-col md:flex-row justify-between md:items-center">
+                                    <div>
+                                        <p className="text-xl font-semibold text-blue-700">{expert.name}</p>
+                                        <p className="text-gray-600">{expert.email} | {expert.profile.phone}</p>
+                                        <p className="text-gray-800 mt-1">Trade: <span className="font-medium">{expert.profile.trade}</span></p>
+                                        <p className="text-gray-600 text-sm">ID Proof: {expert.profile.idProof || 'Not Provided'}</p>
+                                    </div>
+                                    <div className="mt-4 md:mt-0">
+                                        <button 
+                                            onClick={() => handleVerifyClick(expert._id)}
+                                            className="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg shadow hover:bg-green-700 transition-colors"
+                                        >
+                                            Verify Expert
+                                        </button>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="p-6 text-center text-gray-500">
+                                {loading ? 'Loading...' : 'No experts are currently pending verification.'}
+                            </p>
+                        )}
+                    </div>
+                </section>
+            </div>
+        </div>
+    );
 }

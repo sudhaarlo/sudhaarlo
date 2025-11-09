@@ -5,7 +5,9 @@ import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// This route is protected. Only logged-in users can access it.
-router.get('/experts', protect, getExperts);
+// --- MODIFIED ---
+// This route is now PUBLIC. Anyone can see the list of experts.
+// The "Book Now" button on the frontend is already hidden if you're not logged in.
+router.get('/experts', getExperts);
 
 export default router;

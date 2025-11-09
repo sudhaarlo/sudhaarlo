@@ -1,40 +1,80 @@
 // src/server.js
 
-// --- CORE IMPORTS ---
-import 'dotenv/config'; // Loads .env variables immediately
+// --- 1. DOTENV/CONFIG MUST BE THE FIRST IMPORT ---
+import 'dotenv/config'; 
+
 import express from 'express';
 import cors from 'cors';
+import http from 'http';
+import { Server } from 'socket.io';
 import connectDB from './config/db.js';
 
 // --- ROUTE IMPORTS ---
-// Import all the route handlers for different parts of the API
 import authRoutes from './routes/authRoutes.js';
-import bookingRoutes from './routes/bookingRoutes.js'; // This was missing
-import userRoutes from './routes/userRoutes.js';     // This was also missing
+import bookingRoutes from './routes/bookingRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import adminRoutes from './routes/adminRoutes.js'; // Added admin routes
 
 // --- INITIALIZATION ---
-// Connect to the database first
 connectDB();
-// Create the Express application instance
 const app = express();
+const server = http.createServer(app); // Create HTTP server for Socket.IO
+
+// --- Socket.IO Setup ---
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:5173", // Your Vite frontend URL
+        methods: ["GET", "POST"]
+    }
+});
+
+// --- In-memory map for online users { userId: socketId } ---
+let onlineUsers = {};
 
 // --- MIDDLEWARE SETUP ---
-// Enable CORS to allow requests from your frontend
 app.use(cors());
-// Enable express to parse incoming JSON bodies
 app.use(express.json());
 
-// --- API ROUTE DEFINITIONS ---
-// Any request to /api/auth/... will be handled by authRoutes
-app.use('/api/auth', authRoutes);
-// Any request to /api/bookings/... will be handled by bookingRoutes
-app.use('/api/bookings', bookingRoutes);
-// Any request to /api/users/... will be handled by userRoutes
-app.use('/api/users', userRoutes);
+// --- Middleware to pass 'io' and 'onlineUsers' to routes ---
+app.use((req, res, next) => {
+    req.io = io;
+    req.onlineUsers = onlineUsers;
+    next();
+});
 
+// --- API ROUTE DEFINITIONS ---
+app.use('/api/auth', authRoutes);
+app.use('/api/bookings', bookingRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/admin', adminRoutes); // Use the admin routes
+
+// --- Socket.IO Connection Logic ---
+io.on('connection', (socket) => {
+    console.log(`[Socket.IO] New client connected: ${socket.id}`);
+
+    // Listen for a user to register themselves as online
+    socket.on('registerUser', (userId) => {
+        onlineUsers[userId] = socket.id;
+        console.log('[Socket.IO] Online Users:', onlineUsers);
+    });
+
+    // Handle client disconnect
+    socket.on('disconnect', () => {
+        console.log(`[Socket.IO] Client disconnected: ${socket.id}`);
+        // Remove user from the map
+        for (const userId in onlineUsers) {
+            if (onlineUsers[userId] === socket.id) {
+                delete onlineUsers[userId];
+                break;
+            }
+        }
+        console.log('[Socket.IO] Online Users:', onlineUsers);
+    });
+});
 
 // --- SERVER STARTUP ---
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server is running successfully on port ${PORT}`);
+// Use server.listen() to start both Express and Socket.IO
+server.listen(PORT, () => {
+    console.log(`Server is running with Socket.IO on port ${PORT}`);
 });

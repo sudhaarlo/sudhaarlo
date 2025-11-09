@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getUserProfile, getCustomerBookings } from '../../services/api';
+// --- 1. Import 'apiGetProfile' (correct name) and 'getCustomerBookings' (removed .js) ---
+import { apiGetProfile, getCustomerBookings } from '../../services/api';
+// --- 2. Import useAuth hook (removed .js) ---
+import { useAuth } from '../../hooks/useAuth';
 
 // A simple loading component for a better user experience
 const LoadingSpinner = () => (
@@ -12,9 +15,10 @@ const LoadingSpinner = () => (
 // --- MAIN DASHBOARD COMPONENT ---
 export default function CustomerDashboard() {
     const navigate = useNavigate();
+    // --- 3. Get the user object directly from the AuthContext ---
+    const { user, isLoading: isAuthLoading } = useAuth(); // Renamed loading to avoid conflict
 
     // --- STATE MANAGEMENT ---
-    const [user, setUser] = useState(null);
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -22,37 +26,36 @@ export default function CustomerDashboard() {
 
     // --- DATA FETCHING ---
     useEffect(() => {
-        const fetchDashboardData = async () => {
-            try {
-                // Fetch user profile and bookings in parallel
-                const [profileData, bookingsData] = await Promise.all([
-                    getUserProfile(),
-                    getCustomerBookings(),
-                ]);
-                setUser(profileData);
-                setBookings(bookingsData);
-            } catch (err) {
-                console.error("Dashboard Error:", err);
-                setError("Sorry, we couldn't load your dashboard. Please try logging in again.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchDashboardData();
-    }, []); // Empty array ensures this runs only once on mount
+        // Only fetch bookings if the user is loaded
+        if (user) {
+            const fetchDashboardData = async () => {
+                try {
+                    // --- 4. No need to fetch profile, just get bookings ---
+                    const bookingsData = await getCustomerBookings();
+                    setBookings(bookingsData);
+                } catch (err) {
+                    console.error("Dashboard Error:", err);
+                    setError("Sorry, we couldn't load your dashboard. Please try logging in again.");
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchDashboardData();
+        } else if (!isAuthLoading) {
+            // If auth is done loading and there's still no user
+            setError("Could not load user data. Please log in again.");
+            setLoading(false);
+        }
+    }, [user, isAuthLoading]); // Re-run when user or auth loading state changes
 
     // --- DATA DERIVATION & MEMOIZATION ---
-
-    // FIX: Define the 'upcomingBookings' variable by filtering the main bookings list
     const upcomingBookings = useMemo(
         () => bookings.filter(b => b.status === 'Confirmed' || b.status === 'Pending'),
         [bookings]
     );
     
-    // Calculate quick stats dynamically from live data
     const quickStats = useMemo(() => {
-        const upcomingCount = upcomingBookings.length; // Now we can use the variable here
+        const upcomingCount = upcomingBookings.length;
         const completedCount = bookings.filter(b => b.status === 'Completed').length;
         
         return [
@@ -60,7 +63,7 @@ export default function CustomerDashboard() {
             { key: 'completed', label: 'Completed Bookings', value: completedCount, accent: 'from-green-400 to-green-600' },
             { key: 'total', label: 'Total Bookings', value: bookings.length, accent: 'from-yellow-400 to-yellow-500' },
         ];
-    }, [bookings]);
+    }, [bookings, upcomingBookings]);
 
     // Static data for the service category grid
     const categories = useMemo(() => [
@@ -77,13 +80,14 @@ export default function CustomerDashboard() {
         setSelectedService(serviceName);
         setTimeout(() => {
             console.log(`Navigating to booking page for: ${serviceName}`);
+            // --- 5. Navigate to the correct route from App.jsx ---
             navigate('/customer/book', { state: { service: serviceName } });
             setSelectedService(null); // Reset after action
         }, 1000);
     };
 
     // --- RENDER LOGIC ---
-    if (loading) {
+    if (loading || isAuthLoading) { // Show spinner if auth OR data is loading
         return <LoadingSpinner />;
     }
 
@@ -141,17 +145,18 @@ export default function CustomerDashboard() {
                                 {upcomingBookings.slice(0, 3).map((booking) => (
                                     <li key={booking._id} className="py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
                                         <div className="mb-2 sm:mb-0">
-                                            <p className="font-semibold text-gray-900">{booking.service}</p>
+                                            {/* --- 6. FIX: Use 'serviceCategory' from your model --- */}
+                                            <p className="font-semibold text-gray-900">{booking.serviceCategory}</p>
                                             <p className="text-sm text-gray-600">
                                                 with {booking.expert?.name || 'Assigned Expert'}
                                             </p>
                                         </div>
                                         <div className="text-left sm:text-right">
+                                            {/* --- 7. FIX: Use 'date' and 'time' from your model --- */}
                                             <p className="text-sm font-medium text-gray-800">
-                                                {new Date(booking.scheduled).toLocaleString('en-IN', {
+                                                {new Date(booking.date).toLocaleDateString('en-IN', {
                                                     dateStyle: 'medium',
-                                                    timeStyle: 'short',
-                                                })}
+                                                })} - {booking.time}
                                             </p>
                                             <span className={`mt-2 inline-block px-2 py-1 text-xs font-semibold rounded-full ${
                                                 booking.status === 'Confirmed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
@@ -199,6 +204,3 @@ export default function CustomerDashboard() {
         </div>
     );
 }
-
-
-

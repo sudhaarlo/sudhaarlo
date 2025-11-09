@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { loginUser } from '../../services/api.js';
+// --- 1. Import useAuth from our context ---
+import { useAuth } from '../../context/AuthContext';
+// We no longer need the direct API call:
+// import { loginUser } from '../../services/api.js';
 
 export default function LoginPage() {
+    // --- 2. Get the login function from the context ---
+    const { login } = useAuth();
+
     // Single state for the identifier (can be email or phone)
     const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
@@ -25,6 +31,7 @@ export default function LoginPage() {
         if (isEmail(identifier)) {
             loginData.email = identifier;
         } else if (isPhone(identifier)) {
+            // This assumes your backend login controller can handle a "phone" key
             loginData.phone = identifier.replace(/[^0-9]/g, ''); // Clean non-digit characters
         } else {
             setError("Please enter a valid email or 10-digit phone number.");
@@ -33,13 +40,14 @@ export default function LoginPage() {
         
         setLoading(true);
         try {
-            // 2. Call the API. The loginUser function in api.js now handles token storage.
-            const response = await loginUser(loginData);
+            // --- 3. Call the context's login function ---
+            // This now handles token storage and returns the user object on success
+            const user = await login(loginData);
             
-            // 3. Get the user's role from the response for redirection.
-            const userRole = response?.user?.role;
+            // 4. Get the user's role from the response for redirection.
+            const userRole = user?.role;
 
-            // 4. Redirect based on the role.
+            // 5. Redirect based on the role.
             if (userRole === 'expert') {
                 navigate('/expert/dashboard');
             } else if (userRole === 'admin') {
@@ -50,8 +58,8 @@ export default function LoginPage() {
             }
 
         } catch (err) {
-            // Display a user-friendly error from the API or a general failure message
-            setError(err?.response?.data?.message || 'Login failed. Please check your credentials.');
+            // 6. Display the error from the context
+            setError(err?.response?.data?.msg || 'Login failed. Please check your credentials.');
         } finally {
             setLoading(false);
         }
@@ -111,4 +119,3 @@ export default function LoginPage() {
         </div>
     );
 }
-

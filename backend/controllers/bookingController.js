@@ -1,20 +1,47 @@
 // src/controllers/bookingController.js
 
-import Booking from '../models/Booking.js'; // Use default import for Mongoose models
+import Booking from '../models/Booking.js';
 
 export async function createBooking(req, res) {
+    // --- NEW: Get 'io' and 'onlineUsers' from the request ---
+    const { io, onlineUsers } = req;
+
     try {
         const { serviceCategory, date, time, price, expert, notes } = req.body;
+        
+        // 1. Create the booking
         const booking = await Booking.create({
             customer: req.user.id,
-            expert,
+            expert, // expert is just the ID string from req.body
             serviceCategory,
             date,
             time,
             price: price || 0,
             notes
         });
-        res.status(201).json(booking);
+
+        // 2. Populate the new booking for a richer notification
+        const populatedBooking = await Booking.findById(booking._id)
+            .populate('customer', 'name email');
+
+        // --- NEW: Real-time Notification Logic ---
+        
+        // 3. Find the expert's socket ID from the map
+        const expertSocketId = onlineUsers[expert.toString()];
+
+        if (expertSocketId) {
+            // 4. If the expert is online, emit the event to their specific socket
+            io.to(expertSocketId).emit('newBookingRequest', populatedBooking);
+            console.log(`Notification sent to expert ${expert}`);
+        } else {
+            // 5. If offline, just log it. (You could add email/SMS logic here)
+            console.log(`Expert ${expert} is offline. No real-time notification sent.`);
+        }
+        // --- End of Notification Logic ---
+
+        // 6. Send the created booking back to the customer
+        res.status(201).json(populatedBooking);
+
     } catch (error) {
         console.error("Booking creation error:", error);
         res.status(500).json({ message: "Server error creating booking." });

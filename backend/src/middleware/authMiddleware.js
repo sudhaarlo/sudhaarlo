@@ -4,40 +4,52 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
 /**
- * @desc    Middleware to protect routes by verifying a JSON Web Token.
- * If the token is valid, it attaches the user's data to the request object.
+ * @desc 
+ * This is the protection middleware.
+ * It checks for the 'x-auth-token' in the request headers.
+ * This matches the 'api.js' interceptor on your frontend.
  */
 export const protect = async (req, res, next) => {
     let token;
 
-    // Check if the Authorization header exists and starts with "Bearer"
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    // 1. Check for the token in the 'x-auth-token' header
+    if (req.headers['x-auth-token']) {
         try {
-            // 1. Extract the token from the "Bearer <token>" string
-            token = req.headers.authorization.split(' ')[1];
+            // 2. Get token from header
+            token = req.headers['x-auth-token'];
 
-            // 2. Verify the token using the secret key from your .env file
+            // 3. Verify the token
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-            // 3. Find the user by the ID stored in the token's payload.
-            //    This is crucial to ensure the user still exists.
+            // 4. Get the user from the database using the ID in the token
+            // Attach the user object to the request (excluding the password)
             req.user = await User.findById(decoded.id).select('-password');
 
             if (!req.user) {
                 return res.status(401).json({ message: 'Not authorized, user not found' });
             }
-            
-            // 4. If everything is valid, proceed to the actual route handler (the controller)
+
+            // 5. Move to the next function (the controller)
             next();
         } catch (error) {
-            // This will catch an expired or malformed token
             console.error('Token verification failed:', error.message);
-            return res.status(401).json({ message: 'Not authorized, token failed' });
+            res.status(401).json({ message: 'Not authorized, token failed' });
         }
     }
 
-    // If no token was found in the header
     if (!token) {
-        return res.status(401).json({ message: 'Not authorized, no token' });
+        res.status(401).json({ message: 'Not authorized, no token' });
+    }
+};
+
+/**
+ * @desc 
+ * This middleware checks if the user (added by 'protect') has a specific role.
+ */
+export const hasRole = (role) => (req, res, next) => {
+    if (req.user && req.user.role === role) {
+        next();
+    } else {
+        res.status(403).json({ message: 'Forbidden: You do not have the required permissions.' });
     }
 };

@@ -2,7 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { registerUser } from '../../services/api';
+// --- 1. Import useAuth from the correct hooks folder (removed .js) ---
+import { useAuth } from '../../hooks/useAuth';
+// We no longer need the direct API call:
+// import { registerUser } from '../../services/api';
 
 const ROLES = {
     CUSTOMER: 'customer',
@@ -19,7 +22,7 @@ const INDIAN_STATES = [
     "Uttar Pradesh", "Uttarakhand", "West Bengal",
     // Union Territories
     "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", 
-    "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
+    "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadwee", "Puducherry"
 ];
 
 const VALID_SERVICES = [
@@ -27,9 +30,7 @@ const VALID_SERVICES = [
     "Electrical Wiring & Repair", "Fan Installation", "Inverter/UPS Repair",
     "AC Service & Repair (Split/Window)", "Refrigerator Repair", "Washing Machine Repair",
     "Geyser Installation & Repair", "Microwave Oven Repair",
-    "Custom Furniture Making", "Door & Window Repair", "Modular Kitchen Installation",
-    "Interior Painting", "Exterior Painting", "Waterproofing Services",
-    "Tile & Marble Fitting", "Masonry Work", "Home Cleaning (Deep Clean)",
+    "Custom Furniture Making", "Interior Painting", "Exterior Painting",
     "Pest Control (General)", "Termite Control", "Security Camera Installation",
     "Laptop & Desktop Repair", "Vehicle Washing (At Home)", "Gardening & Landscaping", 
     "Other" // The critical "Other" option
@@ -355,8 +356,11 @@ const AdminFields = ({ adminDetails, setAdminDetails }) => (
 );
 
 export default function RegistrationPage() {
+    // --- 2. Get the register function from the context ---
+    const { register } = useAuth();
+    
     const [name, setName] = useState('');
-    const [phone, setPhone] = useState('');
+    const [phone, setPhone] = useState(''); // This will be 'profile.phone' in the final object
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [role, setRole] = useState(ROLES.NONE);
@@ -373,21 +377,19 @@ export default function RegistrationPage() {
         e.preventDefault();
         setError(null);
 
+        // --- All your existing validation logic is perfect ---
         if (role === ROLES.NONE) {
             setError('Please select a user role.');
             return;
         }
-        
         if (role === ROLES.EXPERT && expertDetails.serviceAreas?.length === 0) {
             setError('Experts must add at least one service area before submitting.');
             return;
         }
-        
         if (role === ROLES.EXPERT && expertDetails.trade === 'Other' && !expertDetails.customService) {
              setError('Please specify the custom service you offer.');
              return;
         }
-        
         if (role === ROLES.CUSTOMER) {
              const requiredCustomerFields = ['streetAddress', 'city', 'state', 'pincode', 'birthday'];
              const missingField = requiredCustomerFields.find(field => !customerDetails[field]);
@@ -396,7 +398,6 @@ export default function RegistrationPage() {
                  return;
              }
         }
-        
         if (role === ROLES.EXPERT) {
              const requiredExpertFields = ['trade', 'experience', 'state', 'idProof'];
              const missingField = requiredExpertFields.find(field => !expertDetails[field]);
@@ -405,45 +406,65 @@ export default function RegistrationPage() {
                  return;
              }
         }
-        
         if (role === ROLES.ADMIN && !adminDetails.accessKey) {
              setError('Please enter the Admin Access Key.');
              return;
         }
+        // --- End of validation ---
 
         setLoading(true);
         
-        let registrationData = { name, phone, email, password, role };
+        // --- 3. Build the final payload for the context function ---
+        // This structure matches your backend controller
+        let registrationData = { 
+            name, 
+            phone, // Your controller looks for 'phone' at the top level
+            email, 
+            password, 
+            role,
+            profile: {} // Initialize profile object
+        };
         
+        // Add role-specific details into the 'profile' object
         if (role === ROLES.EXPERT) {
-            registrationData = { 
-                ...registrationData, 
+            registrationData.profile = {
                 ...expertDetails, 
                 country: 'India',
+                // Use custom service name if 'Other' is selected
                 trade: expertDetails.trade === 'Other' ? expertDetails.customService : expertDetails.trade
             };
-            if(registrationData.customService) {
-                delete registrationData.customService;
+            // Clean up the temporary field
+            if(registrationData.profile.customService) {
+                delete registrationData.profile.customService;
             }
         } else if (role === ROLES.CUSTOMER) {
-            registrationData = { ...registrationData, ...customerDetails, country: 'India' };
+            registrationData.profile = { 
+                ...customerDetails, 
+                country: 'India' 
+            };
         } else if (role === ROLES.ADMIN) {
-            registrationData = { ...registrationData, ...adminDetails };
+            registrationData.profile = { 
+                ...adminDetails 
+            };
         }
 
         try {
-            const res = await registerUser(registrationData);
+            // --- 4. Call the context's register function ---
+            const user = await register(registrationData);
             
-            const token = res?.data?.token || res?.token;
-            if (token) localStorage.setItem('token', token);
-            
-            if (role === ROLES.EXPERT) {
+            // 5. Get role from the returned user and redirect
+            const userRole = user?.role;
+
+            if (userRole === ROLES.EXPERT) {
+                // You might want a specific "Pending Verification" page here
+                // For now, we send to the dashboard
                 navigate('/expert/dashboard');
-            } else if (role === ROLES.CUSTOMER) {
+            } else if (userRole === ROLES.CUSTOMER) {
                 navigate('/customer/dashboard');
             } else {
                 navigate('/admin/dashboard');
             }
+
         } catch (err) {
             setError(err?.response?.data?.message || err.message || 'Registration failed');
         } finally {
@@ -501,7 +522,7 @@ export default function RegistrationPage() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="••••••••"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/5Failure"
                             required
                         />
                     </div>
